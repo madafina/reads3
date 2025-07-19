@@ -20,6 +20,9 @@ class AllSubmissionDataTable extends DataTable
             ->editColumn('presentation_date', fn($row) => Carbon::parse($row->presentation_date)->translatedFormat('d F Y'))
             ->addColumn('resident_name', fn($row) => $row->resident->user->name ?? 'N/A')
             ->addColumn('task_category_name', fn($row) => $row->taskCategory->name ?? 'N/A')
+            // TAMBAHKAN DUA KOLOM BARU INI
+            ->addColumn('stage_name', fn($row) => $row->stage->name ?? '-')
+            ->addColumn('division_name', fn($row) => $row->division->name ?? '-')
             ->addColumn('status', function ($row) {
                 $badges = [
                     'verified' => 'success',
@@ -36,18 +39,18 @@ class AllSubmissionDataTable extends DataTable
 
     public function query(Submission $model): QueryBuilder
     {
-        $query = $model->newQuery()->with(['resident.user', 'taskCategory']);
+        // Eager load relasi baru
+        $query = $model->newQuery()->with(['resident.user', 'taskCategory', 'stage', 'division']);
 
-        // Terapkan filter jika ada input dari request
+        // Logika filter yang diperbarui
         if ($stageId = $this->request()->get('stage_id')) {
-            // Ambil semua submission dari resident yang ada di tahap tersebut
-            $query->whereHas('resident', function ($q) use ($stageId) {
-                $q->where('current_stage_id', $stageId);
-            });
+            $query->where('stage_id', $stageId);
         }
-
         if ($status = $this->request()->get('status')) {
             $query->where('status', $status);
+        }
+        if ($divisionId = $this->request()->get('division_id')) {
+            $query->where('division_id', $divisionId);
         }
 
         return $query;
@@ -59,8 +62,7 @@ class AllSubmissionDataTable extends DataTable
                     ->setTableId('allsubmission-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->orderBy(0, 'desc') // Urutkan berdasarkan ID terbaru
-                    ->selectStyleSingle();
+                    ->orderBy(0, 'desc');
     }
 
     public function getColumns(): array
@@ -70,6 +72,8 @@ class AllSubmissionDataTable extends DataTable
             Column::make('resident_name')->title('Nama Residen'),
             Column::make('title')->title('Judul'),
             Column::make('task_category_name')->title('Kategori'),
+            Column::make('stage_name')->title('Tahap'), // Kolom baru
+            Column::make('division_name')->title('Divisi'), // Kolom baru
             Column::make('presentation_date')->title('Tgl Sidang'),
             Column::make('status')->title('Status'),
             Column::computed('file')->title('File')->addClass('text-center'),

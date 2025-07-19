@@ -323,6 +323,7 @@ return [
             'text'    => 'Semua Ilmiah',
             'route'   => 'admin.submissions.all',
             'icon'    => 'fas fa-fw fa-archive',
+            'can'  => 'manage-users',
         ],
 
         [
@@ -343,11 +344,13 @@ return [
             'text' => 'Residen',
             'route'  => 'admin.residents.index',
             'icon' => 'fas fa-fw fa-user-graduate',
+            'can'  => 'manage-users',
         ],
         [
             'text' => 'Dosen',
             'route'  => 'admin.lecturers.index',
             'icon' => 'fas fa-fw fa-user-tie',
+            'can'  => 'manage-users',
         ],
 
         [
@@ -385,10 +388,10 @@ return [
 
 
         // MENU UNTUK RESIDEN
-        [
-            'header' => 'MENU RESIDEN',
-            'can' => 'create-submission', // Hanya untuk role Residen
-        ],
+        // [
+        //     'header' => 'MENU RESIDEN',
+        //     'can' => 'create-submission', // Hanya untuk role Residen
+        // ],
         [
             'text'    => 'Rekap Ilmiah',
             'icon'    => 'fas fa-fw fa-book-open',

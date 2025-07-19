@@ -8,6 +8,7 @@ use App\Models\Submission;
 use Illuminate\Support\Facades\Auth; 
 use App\DataTables\AllSubmissionDataTable;  
 use App\Models\Stage;
+use App\Models\Division; 
 
 class SubmissionController extends Controller
 {
@@ -40,8 +41,11 @@ class SubmissionController extends Controller
 
     public function all(AllSubmissionDataTable $dataTable)
     {
+        // Ambil data untuk dropdown filter
         $stages = Stage::orderBy('order')->get();
-        // Kirim data 'stages' ke view agar bisa digunakan untuk filter
-        return $dataTable->render('admin.submissions.all', compact('stages'));
+        $divisions = Division::orderBy('name')->get(); // Ambil data divisi
+
+        // Kirim semua data filter ke view
+        return $dataTable->render('admin.submissions.all', compact('stages', 'divisions'));
     }
 }
