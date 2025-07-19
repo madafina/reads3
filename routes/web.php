@@ -5,12 +5,14 @@ use App\Livewire\Resident\Dashboard as ResidentDashboard;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\SubmissionController as AdminSubmissionController;
-use App\Livewire\Admin\Dashboard as AdminDashboard; 
+use App\Livewire\Admin\Dashboard as AdminDashboard;
 use App\Http\Controllers\Admin\ResidentController as AdminResidentController;
 use App\Http\Controllers\Admin\LecturerController as AdminLecturerController;
 use App\Http\Controllers\Admin\RequirementRuleController as AdminRequirementRuleController;
 use App\Http\Controllers\Admin\TaskCategoryController as AdminTaskCategoryController;
 use App\Http\Controllers\Admin\DivisionController as AdminDivisionController;
+use App\Http\Controllers\Resident\ResidentController; 
+
 
 
 Route::get('/', function () {
@@ -20,7 +22,7 @@ Route::get('/', function () {
 Auth::routes();
 
 Route::middleware('auth')->group(function () {
-    Route::get('/home', function() {
+    Route::get('/home', function () {
         $user = auth()->user();
         if ($user->hasRole('Admin')) {
             // return view('admin.dashboard'); // Nanti kita buat view ini
@@ -40,21 +42,30 @@ Route::middleware('auth')->group(function () {
     Route::get('/resident/dashboard', ResidentDashboard::class)->name('resident.dashboard');
 
     // Tambahkan route lain di sini nanti
-});
 
-Route::get('/submissions/create', [SubmissionController::class, 'create'])
-    ->middleware('role:Residen') // Pastikan hanya residen yang bisa akses
-    ->name('submissions.create');
 
-Route::get('/submissions/history', [SubmissionController::class, 'history'])
+    Route::get('/submissions/create', [SubmissionController::class, 'create'])
+        ->middleware('role:Residen') // Pastikan hanya residen yang bisa akses
+        ->name('submissions.create');
+
+    Route::get('/submissions/history', [SubmissionController::class, 'history'])
+        ->middleware('role:Residen')
+        ->name('submissions.history');
+
+    Route::get('/resident/summary', [ResidentController::class, 'summary']) // Baris BARU
     ->middleware('role:Residen')
-    ->name('submissions.history');
+    ->name('resident.summary');
+
+    Route::get('/resident/browse', [ResidentController::class, 'browse'])
+    ->middleware('role:Residen')
+    ->name('resident.browse');
+
+});
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
     Route::get('/submissions/verify', [AdminSubmissionController::class, 'index'])->name('submissions.verify.index');
 
-     // TAMBAHKAN DUA ROUTE INI
     Route::put('/submissions/{submission}/verify', [App\Http\Controllers\Admin\SubmissionController::class, 'verify'])->name('submissions.verify');
     Route::put('/submissions/{submission}/reject', [App\Http\Controllers\Admin\SubmissionController::class, 'reject'])->name('submissions.reject');
 

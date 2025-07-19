@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DivisionController extends Controller
 {
@@ -94,33 +95,67 @@ class DivisionController extends Controller
     /**
      * Menampilkan halaman untuk mengelola staf sebuah divisi.
      */
+    // public function staff(Division $division)
+    // {
+    //     // Ambil semua user dengan role 'Dosen'
+    //     $allLecturers = User::role('Dosen')->orderBy('name')->get();
+
+    //     // Ambil ID dosen yang sudah menjadi staf di divisi ini
+    //     $currentStaffIds = $division->staff->pluck('id')->toArray();
+
+    //     return view('admin.divisions.staff', compact('division', 'allLecturers', 'currentStaffIds'));
+    // }
+
     public function staff(Division $division)
-    {
-        // Ambil semua user dengan role 'Dosen'
-        $allLecturers = User::role('Dosen')->orderBy('name')->get();
+{
+    // Ambil semua user dengan role 'Dosen'
+    $allLecturers = User::role('Dosen')->orderBy('name')->get();
 
-        // Ambil ID dosen yang sudah menjadi staf di divisi ini
-        $currentStaffIds = $division->staff->pluck('id')->toArray();
+    // Ambil ID dosen yang sudah menjadi staf di divisi ini
+    $currentStaffIds = $division->staff->pluck('id')->toArray();
 
-        return view('admin.divisions.staff', compact('division', 'allLecturers', 'currentStaffIds'));
-    }
+    // Ambil ID dari user yang menjadi PJ
+    $currentPjId = $division->staff()->wherePivot('is_pj', true)->value('id');
+
+    return view('admin.divisions.staff', compact(
+        'division',
+        'allLecturers',
+        'currentStaffIds',
+        'currentPjId'
+    ));
+}
+
 
     /**
      * Memperbarui daftar staf di sebuah divisi. (VERSI BARU)
      */
     // app/Http/Controllers/Admin/DivisionController.php
 
-public function updateStaff(Request $request, Division $division)
-{
-    $request->validate([
-        'assigned_staff' => 'nullable|array',
-        'assigned_staff.*' => 'exists:users,id',
-    ]);
+    public function updateStaff(Request $request, Division $division)
+    {
+        $request->validate([
+            'assigned_staff' => 'nullable|array',
+            'assigned_staff.*' => 'exists:users,id',
+            // Jadikan pj_id wajib jika ada staf yang ditugaskan
+            'pj_id' => 'required_with:assigned_staff|nullable|exists:users,id',
+        ], [
+            // Pesan error kustom
+            'pj_id.required_with' => 'Anda harus memilih satu Penanggung Jawab (PJ) jika ada staf yang ditugaskan.'
+        ]);
 
-    // Gunakan sync() untuk memperbarui relasi many-to-many
-    // Ini akan otomatis menambah/menghapus staf sesuai pilihan di kolom kanan
-    $division->staff()->sync($request->assigned_staff ?? []);
+        // ... sisa logika method sama persis ...
+        $division->staff()->sync($request->assigned_staff ?? []);
 
-    return redirect()->route('admin.divisions.index')->with('success', 'Daftar staf untuk divisi '.$division->name.' berhasil diperbarui.');
-}
+        DB::table('division_staff')
+            ->where('division_id', $division->id)
+            ->update(['is_pj' => false]);
+
+        if ($request->pj_id) {
+            $division->staff()->updateExistingPivot($request->pj_id, [
+                'is_pj' => true,
+            ]);
+        }
+
+        return redirect()->route('admin.divisions.index')->with('success', 'Daftar staf dan PJ untuk divisi ' . $division->name . ' berhasil diperbarui.');
+    }
 }

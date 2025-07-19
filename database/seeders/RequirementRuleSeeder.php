@@ -10,58 +10,63 @@ use Illuminate\Database\Seeder;
 
 class RequirementRuleSeeder extends Seeder
 {
+    /**
+     * Run the database seeds.
+     */
     public function run(): void
     {
-        $tahap1 = Stage::where('name', 'Tahap I')->first();
-        $tahap2 = Stage::where('name', 'Tahap II')->first();
+        // 1. Ambil semua data master yang dibutuhkan
+        $tahap1 = Stage::where('name', 'Tahap I')->firstOrFail();
+        $tahap2 = Stage::where('name', 'Tahap II')->firstOrFail();
 
-        $divisiParu = Division::where('name', 'Pulmonologi')->first();
-        $divisiKardio = Division::where('name', 'Kardiologi Vaskular')->first();
+        $divisiParu = Division::where('name', 'Pulmonologi')->firstOrFail();
+        $divisiKardio = Division::where('name', 'Kardiologi Vaskular')->firstOrFail();
 
-        $taskJr = TaskCategory::where('name', 'Journal Reading')->first();
-        $taskLapsus = TaskCategory::where('name', 'Laporan Kasus')->first();
-        $taskRefrat = TaskCategory::where('name', 'Tinjauan Pustaka')->first();
-        $taskCbd = TaskCategory::where('name', 'Case Based Discussion')->first();
-        $taskMinicx = TaskCategory::where('name', 'Mini CX')->first();
+        $taskPemeriksaanFisik = TaskCategory::where('name', 'Pemeriksaan Fisik')->firstOrFail();
+        $taskSindromaKlinis = TaskCategory::where('name', 'Sindroma Klinis')->firstOrFail();
+        $taskMiniCx = TaskCategory::where('name', 'Mini CX')->firstOrFail();
+        $taskJr = TaskCategory::where('name', 'Journal Reading')->firstOrFail();
+        $taskLapsus = TaskCategory::where('name', 'Laporan Kasus')->firstOrFail();
+        $taskRefrat = TaskCategory::where('name', 'Tinjauan Pustaka')->firstOrFail();
+        $taskCbd = TaskCategory::where('name', 'Case Based Discussion')->firstOrFail();
+
+        // 2. Hapus aturan lama agar tidak tumpang tindih (opsional tapi direkomendasikan)
+        RequirementRule::query()->delete();
+
+        // =================================================================
+        // ATURAN UNTUK TAHAP I
+        // =================================================================
+        $ruleTahap1Fisik = RequirementRule::create(['name' => 'Kewajiban Pemeriksaan Fisik Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
+        $ruleTahap1Fisik->taskCategories()->attach($taskPemeriksaanFisik->id);
+
+        $ruleTahap1Sindrom = RequirementRule::create(['name' => 'Kewajiban Sindroma Klinis Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
+        $ruleTahap1Sindrom->taskCategories()->attach($taskSindromaKlinis->id);
         
-        // Aturan Tahap I: Minicx 5x
-        $ruleMinicx = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban Mini CX Tahap I', 'stage_id' => $tahap1->id],
-            ['required_count' => 5]
-        );
-        $ruleMinicx->taskCategories()->sync([$taskMinicx->id]);
+        $ruleTahap1MiniCx = RequirementRule::create(['name' => 'Kewajiban Mini CX Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 5]);
+        $ruleTahap1MiniCx->taskCategories()->attach($taskMiniCx->id);
 
-        // Aturan Standar Tahap II (division_id = null)
-        $ruleStdJr = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban JR Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null],
-            ['required_count' => 3]
-        );
-        $ruleStdJr->taskCategories()->sync([$taskJr->id]);
+        // =================================================================
+        // ATURAN STANDAR UNTUK TAHAP II (division_id = null)
+        // =================================================================
+        $ruleStdJr = RequirementRule::create(['name' => 'Kewajiban JR Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 3]);
+        $ruleStdJr->taskCategories()->attach($taskJr->id);
         
-        $ruleStdLapsusRefrat = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban Lapsus/Refrat Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null],
-            ['required_count' => 1]
-        );
-        $ruleStdLapsusRefrat->taskCategories()->sync([$taskLapsus->id, $taskRefrat->id]);
+        $ruleStdLapsusRefrat = RequirementRule::create(['name' => 'Kewajiban Lapsus/Refrat Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
+        $ruleStdLapsusRefrat->taskCategories()->attach([$taskLapsus->id, $taskRefrat->id]); // Kondisi ATAU
         
-        $ruleStdCbd = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban CBD Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null],
-            ['required_count' => 1]
-        );
-        $ruleStdCbd->taskCategories()->sync([$taskCbd->id]);
+        $ruleStdCbd = RequirementRule::create(['name' => 'Kewajiban CBD Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
+        $ruleStdCbd->taskCategories()->attach($taskCbd->id);
 
-        // Aturan Khusus Divisi Paru Tahap II
-        $ruleParu = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban Khusus Divisi Paru', 'stage_id' => $tahap2->id, 'division_id' => $divisiParu->id],
-            ['required_count' => 1]
-        );
-        $ruleParu->taskCategories()->sync([$taskJr->id]);
+        // =================================================================
+        // ATURAN PENGECUALIAN UNTUK DIVISI TERTENTU DI TAHAP II
+        // =================================================================
+        
+        // Khusus Divisi Paru: Hanya JR 1x
+        $ruleParu = RequirementRule::create(['name' => 'Kewajiban Khusus Divisi Paru (JR)', 'stage_id' => $tahap2->id, 'division_id' => $divisiParu->id, 'required_count' => 1]);
+        $ruleParu->taskCategories()->attach($taskJr->id);
 
-        // Aturan Khusus Divisi Kardio Tahap II
-        $ruleKardio = RequirementRule::firstOrCreate(
-            ['name' => 'Kewajiban Khusus Divisi Kardio', 'stage_id' => $tahap2->id, 'division_id' => $divisiKardio->id],
-            ['required_count' => 1]
-        );
-        $ruleKardio->taskCategories()->sync([$taskLapsus->id, $taskRefrat->id]);
+        // Khusus Divisi Kardio: Hanya Refrat/Lapsus 1x
+        $ruleKardio = RequirementRule::create(['name' => 'Kewajiban Khusus Divisi Kardio (Refrat/Lapsus)', 'stage_id' => $tahap2->id, 'division_id' => $divisiKardio->id, 'required_count' => 1]);
+        $ruleKardio->taskCategories()->attach([$taskLapsus->id, $taskRefrat->id]); // Kondisi ATAU
     }
 }

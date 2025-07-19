@@ -398,22 +398,35 @@ return [
         // ],
 
 
-        // // MENU UNTUK RESIDEN
-        // [
-        //     'header' => 'NAVIGASI RESIDEN',
-        //     'can' => 'create-submission', // Hanya untuk role Residen
-        // ],
+        // MENU UNTUK RESIDEN
+        [
+            'header' => 'MENU RESIDEN',
+            'can' => 'create-submission', // Hanya untuk role Residen
+        ],
+         [
+            'text'    => 'Ilmiah Saya',
+            'icon'    => 'fas fa-fw fa-history',
+            'route'   => 'submissions.history', 
+            'can'     => 'create-submission',
+        ],
         [
             'text'    => 'Upload Ilmiah',
             'icon'    => 'fas fa-fw fa-upload',
-            'route'   => 'submissions.create', // Nanti kita buat route ini
+            'route'   => 'submissions.create', 
             'role'     => 'create-submission',
+        ],       
+
+        [
+            'text'    => 'Rekapitulasi Kewajiban',
+            'icon'    => 'fas fa-fw fa-book-open',
+            'route'   => 'resident.summary',
+            'role'    => 'Residen',
         ],
         [
-            'text'    => 'Ilmiah Saya',
-            'icon'    => 'fas fa-fw fa-history',
-            'route'   => 'submissions.history', // Nanti kita buat route ini
-            'can'     => 'create-submission',
+            'text'    => 'Arsip Ilmiah',
+            'icon'    => 'fas fa-fw fa-archive',
+            'route'   => 'resident.browse',
+            'role'    => 'Residen',
         ],
     ],
 
