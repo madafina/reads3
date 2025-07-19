@@ -13,12 +13,17 @@ class Division extends Model
 
     public function staff()
     {
-        // Sebuah Divisi memiliki banyak Staf (User)
-        return $this->belongsToMany(User::class, 'division_staff');
+        // Relasi ke User (Dosen) melalui tabel pivot division_staff
+        return $this->belongsToMany(User::class, 'division_staff')->withPivot('is_pj')->withTimestamps();
     }
 
     public function requirementRules()
     {
         return $this->hasMany(RequirementRule::class);
+    }
+
+    public function residents()
+    {
+        return $this->belongsToMany(Resident::class, 'submissions')->distinct();
     }
 }

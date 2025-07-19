@@ -63,8 +63,8 @@ return [
     |
     */
 
-    'logo' => '&nbsp;',
-    'logo_img' => 'dist/img/reads-logo.png',
+    'logo' => 'READS APPS',
+    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
     'logo_img_class' => 'brand-image',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -317,13 +317,13 @@ return [
             'text'    => 'Verifikasi Ilmiah',
             'route'   => 'admin.submissions.verify.index',
             'icon'    => 'fas fa-fw fa-check-circle',
-            'can'     => 'verify-submissions',
+            'can'     => 'manage-users',
         ],
         [
             'text'    => 'Semua Ilmiah',
             'route'   => 'admin.submissions.all',
             'icon'    => 'fas fa-fw fa-archive',
-            'can'  => 'manage-users',
+            'can'  => 'view-all-submissions',
         ],
 
         [
@@ -379,19 +379,9 @@ return [
                 ],
             ],
         ],
-        // [
-        //     'text' => 'Tahap & Divisi',
-        //     'icon' => 'fas fa-fw fa-sitemap',
-        //     'route'  => 'settings.index', // Nanti kita buat route ini
-        //     'can'  => 'manage-settings',
-        // ],
 
+        // MENU RESIDEN
 
-        // MENU UNTUK RESIDEN
-        // [
-        //     'header' => 'MENU RESIDEN',
-        //     'can' => 'create-submission', // Hanya untuk role Residen
-        // ],
         [
             'text'    => 'Rekap Ilmiah',
             'icon'    => 'fas fa-fw fa-book-open',
@@ -415,7 +405,28 @@ return [
             'icon'    => 'fas fa-fw fa-archive',
             'route'   => 'resident.browse',
             'can'    => 'create-submission',
+        ],  
+
+        // MENU DOSEN     
+        [
+            'text'  => 'Mahasiswa Bimbingan',
+            'route' => 'lecturer.advisees',
+            'icon'  => 'fas fa-fw fa-user-graduate',
+            'can'   => 'view-students',
         ],
+        [
+            'text'  => 'Divisi Saya',
+            'route' => 'lecturer.divisions',
+            'icon'  => 'fas fa-fw fa-hospital-user',
+            'can'   => 'view-students',
+        ],
+        // [
+        //     'text'  => 'Semua Tugas Ilmiah',
+        //     'route' => 'lecturer.submissions.all',
+        //     'icon'  => 'fas fa-fw fa-archive',
+        //     'can'   => 'view-all-submissions',
+        // ],
+       
     ],
 
     /*

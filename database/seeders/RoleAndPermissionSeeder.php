@@ -21,6 +21,7 @@ class RoleAndPermissionSeeder extends Seeder
         Permission::firstOrCreate(['name' => 'view-all-submissions']);
         Permission::firstOrCreate(['name' => 'create-submission']);
         Permission::firstOrCreate(['name' => 'view-own-submissions']);
+        Permission::firstOrCreate(['name' => 'view-students']);
         
         // Buat Roles dan berikan permissions
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
@@ -34,7 +35,7 @@ class RoleAndPermissionSeeder extends Seeder
         $dosenRole = Role::firstOrCreate(['name' => 'Dosen']);
         $dosenRole->givePermissionTo([
             'view-all-submissions',
-            'verify-submissions', // Dosen bisa ikut memverifikasi
+            'view-students'
         ]);
 
         $residenRole = Role::firstOrCreate(['name' => 'Residen']);
