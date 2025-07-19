@@ -24,7 +24,7 @@ class SubmissionController extends Controller
             'verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.submissions.verify.index')->with('success', 'Tugas ilmiah berhasil diverifikasi.');
+        return redirect()->route('admin.submissions.verify.index')->with('success', 'Ilmiah berhasil diverifikasi.');
     }
 
     public function reject(Submission $submission)
@@ -35,7 +35,7 @@ class SubmissionController extends Controller
             'verified_at' => now(),
         ]);
 
-        return redirect()->route('admin.submissions.verify.index')->with('success', 'Tugas ilmiah telah ditolak.');
+        return redirect()->route('admin.submissions.verify.index')->with('success', 'Ilmiah telah ditolak.');
     }
 
     public function all(AllSubmissionDataTable $dataTable)

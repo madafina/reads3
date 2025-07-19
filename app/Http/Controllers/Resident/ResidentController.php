@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\DataTables\OtherSubmissionDataTable; 
 use App\Models\TaskCategory; 
+use App\Models\Division;
+use App\Models\Stage;
 
 class ResidentController extends Controller
 {
@@ -24,10 +26,12 @@ class ResidentController extends Controller
      */
     public function browse(OtherSubmissionDataTable $dataTable)
     {
-        // 2. Ambil data semua kategori tugas
+        // Ambil data untuk dropdown filter
         $taskCategories = TaskCategory::orderBy('name')->get();
+        $stages = Stage::orderBy('order')->get();
+        $divisions = Division::orderBy('name')->get();
 
-        // 3. Kirim data 'taskCategories' ke view
-        return $dataTable->render('resident.browse', compact('taskCategories'));
+        // Kirim semua data filter ke view
+        return $dataTable->render('resident.browse', compact('taskCategories', 'stages', 'divisions'));
     }
 }

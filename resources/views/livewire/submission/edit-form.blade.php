@@ -1,7 +1,7 @@
 <div>
     <div class="card card-warning">
         <div class="card-header">
-            <h3 class="card-title">Edit Detail Tugas</h3>
+            <h3 class="card-title">Edit Detail Ilmiah</h3>
         </div>
         <form wire:submit.prevent="update">
             <div class="card-body">
@@ -15,7 +15,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="task_category_id">Kategori Tugas</label>
+                    <label for="task_category_id">Kategori Ilmiah</label>
                     <select class="form-control @error('task_category_id') is-invalid @enderror" id="task_category_id" wire:model.defer="task_category_id">
                         @foreach ($taskCategories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>

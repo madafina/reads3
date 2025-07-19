@@ -308,43 +308,21 @@ return [
 
         // MENU UNTUK ADMIN
         [
-            'header' => 'ADMINISTRATION',
+            'header' => 'ILMIAH',
             'can' => 'manage-users', // Hanya tampil jika user punya permission ini
         ],
-        // [
-        //     'text' => 'Manajemen Pengguna',
-        //     'icon' => 'fas fa-fw fa-users',
-        //     'can'  => 'manage-users',
-        //     'submenu' => [
-        //         [
-        //             'text' => 'Daftar Pengguna',
-        //             'route'  => 'users.index', // Nanti kita buat route ini
-        //         ],
-        //         [
-        //             'text' => 'Tambah Pengguna',
-        //             'route'  => 'users.create',
-        //         ],
-        //     ],
-        // ],
 
 
         [
-            'text'    => 'Manajemen Ilmiah',
-            'icon'    => 'fas fa-fw fa-book-medical',
-            'can'     => 'view-all-submissions',
-            'submenu' => [
-                [
-                    'text'    => 'Verifikasi Ilmiah',
-                    'route'   => 'admin.submissions.verify.index',
-                    'icon'    => 'fas fa-fw fa-check-circle',
-                    'can'     => 'verify-submissions',
-                ],
-                [
-                    'text'    => 'Semua Tugas Ilmiah',
-                    'route'   => 'admin.submissions.all',
-                    'icon'    => 'fas fa-fw fa-archive',
-                ],
-            ],
+            'text'    => 'Verifikasi Ilmiah',
+            'route'   => 'admin.submissions.verify.index',
+            'icon'    => 'fas fa-fw fa-check-circle',
+            'can'     => 'verify-submissions',
+        ],
+        [
+            'text'    => 'Semua Ilmiah',
+            'route'   => 'admin.submissions.all',
+            'icon'    => 'fas fa-fw fa-archive',
         ],
 
         [
@@ -354,23 +332,24 @@ return [
             'can'  => 'manage-users',
         ],
 
+
+        // MENU UNTUK ADMIN
         [
-            'text'    => 'Manajemen Pengguna',
-            'icon'    => 'fas fa-fw fa-users',
-            'can'     => 'manage-users',
-            'submenu' => [
-                [
-                    'text' => 'Manajemen Residen',
-                    'route'  => 'admin.residents.index',
-                    'icon' => 'fas fa-fw fa-user-graduate',
-                ],
-                [
-                    'text' => 'Manajemen Dosen',
-                    'route'  => 'admin.lecturers.index',
-                    'icon' => 'fas fa-fw fa-user-tie',
-                ],
-            ],
+            'header' => 'PENGGUNA',
+            'can' => 'manage-users', // Hanya tampil jika user punya permission ini
         ],
+
+        [
+            'text' => 'Residen',
+            'route'  => 'admin.residents.index',
+            'icon' => 'fas fa-fw fa-user-graduate',
+        ],
+        [
+            'text' => 'Dosen',
+            'route'  => 'admin.lecturers.index',
+            'icon' => 'fas fa-fw fa-user-tie',
+        ],
+
         [
             'header' => 'PENGATURAN MASTER',
             'can' => 'manage-settings',
@@ -386,7 +365,7 @@ return [
                     'icon' => 'fas fa-fw fa-gavel',
                 ],
                 [
-                    'text' => 'Kategori Tugas',
+                    'text' => 'Kategori Ilmiah',
                     'route'  => 'admin.task-categories.index',
                     'icon' => 'fas fa-fw fa-tags',
                 ],
@@ -410,11 +389,11 @@ return [
             'header' => 'MENU RESIDEN',
             'can' => 'create-submission', // Hanya untuk role Residen
         ],
-         [
+        [
             'text'    => 'Rekap Ilmiah',
             'icon'    => 'fas fa-fw fa-book-open',
             'route'   => 'resident.summary',
-            'role'    => 'Residen',
+            'can'    => 'create-submission',
         ],
         [
             'text'    => 'Ilmiah',
@@ -426,13 +405,13 @@ return [
             'text'    => 'Upload Ilmiah',
             'icon'    => 'fas fa-fw fa-upload',
             'route'   => 'submissions.create',
-            'role'     => 'create-submission',
-        ],       
+            'can'     => 'create-submission',
+        ],
         [
             'text'    => 'Arsip Ilmiah',
             'icon'    => 'fas fa-fw fa-archive',
             'route'   => 'resident.browse',
-            'role'    => 'Residen',
+            'can'    => 'create-submission',
         ],
     ],
 

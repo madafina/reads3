@@ -57,7 +57,7 @@ class RequirementRuleDataTable extends DataTable
             Column::make('name')->title('Nama Aturan'),
             Column::make('stage')->title('Tahap'),
             Column::make('division')->title('Divisi'),
-            Column::make('task_categories')->title('Kategori Tugas'),
+            Column::make('task_categories')->title('Kategori Ilmiah'),
             Column::make('required_count')->title('Jumlah'),
             Column::computed('action')->addClass('text-center'),
         ];

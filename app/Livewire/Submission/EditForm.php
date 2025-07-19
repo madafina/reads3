@@ -91,7 +91,7 @@ class EditForm extends Component
 
         $this->submission->update($dataToUpdate);
 
-        session()->flash('success', 'Tugas ilmiah berhasil diperbarui.');
+        session()->flash('success', 'Ilmiah berhasil diperbarui.');
         return redirect()->route('submissions.history');
     }
 

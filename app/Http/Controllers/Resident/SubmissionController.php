@@ -95,12 +95,12 @@ class SubmissionController extends Controller
     {
         // Pastikan residen hanya bisa mengedit tugasnya sendiri
         if ($submission->resident_id !== Auth::user()->resident->id) {
-            abort(403, 'Anda tidak memiliki akses untuk mengedit tugas ini.');
+            abort(403, 'Anda tidak memiliki akses untuk mengedit Ilmiah ini.');
         }
 
         // Pastikan hanya tugas pending yang bisa diedit
         if ($submission->status !== 'pending') {
-            return redirect()->route('submissions.history')->with('error', 'Tugas yang sudah diverifikasi atau ditolak tidak dapat diedit.');
+            return redirect()->route('submissions.history')->with('error', 'Ilmiah yang sudah diverifikasi atau ditolak tidak dapat diedit.');
         }
 
         return view('submissions.edit', compact('submission'));

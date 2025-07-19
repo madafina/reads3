@@ -3,7 +3,7 @@
 @section('title', 'Lihat Ilmiah Lain')
 
 @section('content_header')
-    <h1 class="m-0 text-dark">Arsip Tugas Ilmiah</h1>
+    <h1 class="m-0 text-dark">Arsip Ilmiah</h1>
 @stop
 
 @section('content')
@@ -14,19 +14,40 @@
         </div>
         <div class="card-body">
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-3">
                     <div class="form-group">
-                        <label for="category_filter">Filter Berdasarkan Kategori</label>
+                        <label for="category_filter">Kategori</label>
                         <select id="category_filter" class="form-control">
                             <option value="">-- Semua Kategori --</option>
-                            {{-- Loop ini membutuhkan variabel $taskCategories dari controller --}}
                             @foreach ($taskCategories as $category)
                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
                             @endforeach
                         </select>
                     </div>
                 </div>
-                <div class="col-md-6 d-flex align-items-end">
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="stage_filter">Tahap</label>
+                        <select id="stage_filter" class="form-control">
+                            <option value="">-- Semua Tahap --</option>
+                            @foreach ($stages as $stage)
+                                <option value="{{ $stage->id }}">{{ $stage->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-group">
+                        <label for="division_filter">Divisi</label>
+                        <select id="division_filter" class="form-control">
+                            <option value="">-- Semua Divisi --</option>
+                            @foreach ($divisions as $division)
+                                <option value="{{ $division->id }}">{{ $division->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
                     <div class="form-group">
                         <button id="filter-btn" class="btn btn-primary">Terapkan Filter</button>
                     </div>
@@ -36,36 +57,30 @@
     </div>
 
     {{-- Card untuk Tabel Data --}}
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Daftar Tugas Ilmiah Terverifikasi</h3>
-                    <div class="card-tools">
-                        {{-- <p class="text-muted mb-0">Hanya menampilkan tugas dari residen lain. File tidak dapat diunduh.</p> --}}
-                    </div>
-                </div>
-                <div class="card-body">
-                    {{-- Tabel akan dirender oleh skrip Yajra --}}
-                    {{ $dataTable->table() }}
-                </div>
-            </div>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Daftar Ilmiah Terverifikasi</h3>
+        </div>
+        <div class="card-body">
+            {{ $dataTable->table() }}
         </div>
     </div>
 @stop
 
 @push('js')
-    {{-- Skrip untuk merender DataTable --}}
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
 
-    {{-- Skrip untuk membuat filter bekerja --}}
     <script>
         $('#filter-btn').on('click', function(e) {
             e.preventDefault();
-            // Ambil instance tabel dan gambar ulang dengan parameter baru
-            $('#othersubmission-table').DataTable().ajax.url(
-                "{!! route('resident.browse') !!}?category_id=" + $('#category_filter').val()
-            ).load();
+            // Bangun URL dengan semua parameter filter
+            let url = '{!! route('resident.browse') !!}?' +
+                'category_id=' + $('#category_filter').val() +
+                '&stage_id=' + $('#stage_filter').val() +
+                '&division_id=' + $('#division_filter').val();
+            
+            // Muat ulang data tabel dengan URL baru
+            $('#othersubmission-table').DataTable().ajax.url(url).load();
         });
     </script>
 @endpush

@@ -20,7 +20,7 @@
             <div class="small-box bg-warning">
                 <div class="inner">
                     <h3>{{ $pendingSubmissionsCount }}</h3>
-                    <p>Tugas Menunggu Verifikasi</p>
+                    <p>Ilmiah Menunggu Verifikasi</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-fw fa-hourglass-start"></i>

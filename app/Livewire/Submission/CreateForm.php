@@ -88,7 +88,7 @@ class CreateForm extends Component
         ]);
 
         // Beri notifikasi sukses dan reset form
-        session()->flash('success', 'Tugas ilmiah berhasil diunggah dan sedang menunggu verifikasi.');
+        session()->flash('success', 'Ilmiah berhasil diunggah dan sedang menunggu verifikasi.');
         
         // Alihkan ke histori setelah berhasil
         return redirect()->route('submissions.history');

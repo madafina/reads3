@@ -44,9 +44,9 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="task_category_ids">Kategori Tugas yang Termasuk (Bisa lebih dari satu)</label>
+                            <label for="task_category_ids">Kategori Ilmiah yang Termasuk (Bisa lebih dari satu)</label>
                             {{-- Tambahkan class 'select2' di sini --}}
-                            <select name="task_category_ids[]" class="form-control select2 @error('task_category_ids') is-invalid @enderror" multiple="multiple" data-placeholder="Pilih kategori tugas" style="width: 100%;">
+                            <select name="task_category_ids[]" class="form-control select2 @error('task_category_ids') is-invalid @enderror" multiple="multiple" data-placeholder="Pilih kategori Ilmiah" style="width: 100%;">
                                 @foreach ($taskCategories as $category)
                                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                                 @endforeach

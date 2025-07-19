@@ -16,7 +16,7 @@ class RoleAndPermissionSeeder extends Seeder
 
         // Buat Permissions
         Permission::firstOrCreate(['name' => 'manage-users']);
-        Permission::firstOrCreate(['name' => 'manage-settings']); // stages, divisions, etc.
+        Permission::firstOrCreate(['name' => 'manage-settings']); 
         Permission::firstOrCreate(['name' => 'verify-submissions']);
         Permission::firstOrCreate(['name' => 'view-all-submissions']);
         Permission::firstOrCreate(['name' => 'create-submission']);
@@ -24,7 +24,12 @@ class RoleAndPermissionSeeder extends Seeder
         
         // Buat Roles dan berikan permissions
         $adminRole = Role::firstOrCreate(['name' => 'Admin']);
-        $adminRole->givePermissionTo(Permission::all());
+        $adminRole->givePermissionTo([
+            'manage-users',
+            'manage-settings',
+            'view-all-submissions',
+            'verify-submissions', 
+        ]);
 
         $dosenRole = Role::firstOrCreate(['name' => 'Dosen']);
         $dosenRole->givePermissionTo([

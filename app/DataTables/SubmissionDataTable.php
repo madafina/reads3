@@ -32,7 +32,7 @@ class SubmissionDataTable extends DataTable
                 <form action="' . route('admin.submissions.verify', $row->id) . '" method="POST" class="d-inline">
                     ' . csrf_field() . '
                     ' . method_field("PUT") . '
-                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm(\'Anda yakin ingin memverifikasi tugas ini?\')">
+                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm(\'Anda yakin ingin memverifikasi ilmiah ini?\')">
                         Verify
                     </button>
                 </form>
@@ -41,7 +41,7 @@ class SubmissionDataTable extends DataTable
                 <form action="' . route('admin.submissions.reject', $row->id) . '" method="POST" class="d-inline">
                     ' . csrf_field() . '
                     ' . method_field("PUT") . '
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Anda yakin ingin menolak tugas ini?\')">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Anda yakin ingin menolak ilmiah ini?\')">
                         Reject
                     </button>
                 </form>
