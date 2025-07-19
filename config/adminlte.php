@@ -410,8 +410,14 @@ return [
             'header' => 'MENU RESIDEN',
             'can' => 'create-submission', // Hanya untuk role Residen
         ],
+         [
+            'text'    => 'Rekap Ilmiah',
+            'icon'    => 'fas fa-fw fa-book-open',
+            'route'   => 'resident.summary',
+            'role'    => 'Residen',
+        ],
         [
-            'text'    => 'Ilmiah Saya',
+            'text'    => 'Ilmiah',
             'icon'    => 'fas fa-fw fa-history',
             'route'   => 'submissions.history',
             'can'     => 'create-submission',
@@ -421,14 +427,7 @@ return [
             'icon'    => 'fas fa-fw fa-upload',
             'route'   => 'submissions.create',
             'role'     => 'create-submission',
-        ],
-
-        [
-            'text'    => 'Rekap Ilmiah',
-            'icon'    => 'fas fa-fw fa-book-open',
-            'route'   => 'resident.summary',
-            'role'    => 'Residen',
-        ],
+        ],       
         [
             'text'    => 'Arsip Ilmiah',
             'icon'    => 'fas fa-fw fa-archive',

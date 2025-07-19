@@ -35,7 +35,13 @@
     <td class="text-center">
         {{-- Tombol hanya muncul jika residen berada di tahap yang sesuai & kewajiban belum lengkap --}}
         @if ($rule->stage_id == $currentStageId && !$isCompleted)
-            <a href="{{ route('submissions.create', ['task_category_id' => $rule->taskCategories->first()->id, 'division_id' => $rule->division_id]) }}" class="btn btn-primary btn-sm">
+            @php
+                // === LOGIKA BARU UNTUK MENENTUKAN ID DIVISI ===
+                // Prioritaskan ID divisi dari aturan itu sendiri (untuk aturan spesifik).
+                // Jika tidak ada, gunakan ID divisi dari konteks loop (untuk aturan standar di Tahap II).
+                $divisionIdForLink = $rule->division_id ?? ($contextDivision->id ?? null);
+            @endphp
+            <a href="{{ route('submissions.create', ['task_category_id' => $rule->taskCategories->first()->id, 'division_id' => $divisionIdForLink]) }}" class="btn btn-primary btn-sm">
                 <i class="fas fa-upload mr-1"></i> Upload
             </a>
         @endif

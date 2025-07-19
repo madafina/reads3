@@ -8,10 +8,10 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th style="width: 45%">Kategori Ilmiah</th>
+                            <th style="width: 45%">Nama Kewajiban</th>
                             <th style="width: 20%">Progres</th>
                             <th style="width: 20%">Status</th>
-                            <th style="width: 15%" class="text-center">Aksi</th> {{-- Header baru --}}
+                            <th style="width: 15%" class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -36,8 +36,8 @@
                                 @endphp
 
                                 @forelse ($rulesToShow as $rule)
-                                    {{-- Kirim currentStageId ke partial --}}
-                                    @include('livewire.resident.partials.rule-row', ['rule' => $rule, 'currentStageId' => $currentStageId])
+                                    {{-- PERUBAHAN: Kirim juga objek $division saat ini ke partial --}}
+                                    @include('livewire.resident.partials.rule-row', ['rule' => $rule, 'currentStageId' => $currentStageId, 'contextDivision' => $division])
                                 @empty
                                     <tr>
                                         <td colspan="4" class="text-center text-muted pl-5"><i>Tidak ada kewajiban yang diatur untuk divisi ini.</i></td>
@@ -47,8 +47,8 @@
 
                         @else
                             @forelse ($stage->requirementRules as $rule)
-                                {{-- Kirim currentStageId ke partial --}}
-                                @include('livewire.resident.partials.rule-row', ['rule' => $rule, 'currentStageId' => $currentStageId])
+                                {{-- PERUBAHAN: Kirim contextDivision sebagai null untuk tahap lain --}}
+                                @include('livewire.resident.partials.rule-row', ['rule' => $rule, 'currentStageId' => $currentStageId, 'contextDivision' => null])
                             @empty
                                 <tr>
                                     <td colspan="4" class="text-center text-muted">Belum ada aturan kewajiban untuk tahap ini.</td>

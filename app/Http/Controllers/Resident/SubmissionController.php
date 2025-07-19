@@ -8,6 +8,9 @@ use App\Models\Submission;
 use Illuminate\Support\Facades\Auth; 
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
+use App\Models\Division;
+use App\Models\Stage;
+use App\Models\TaskCategory;
 
 class SubmissionController extends Controller
 {
@@ -24,10 +27,20 @@ class SubmissionController extends Controller
             // Ambil ID residen dari user yang login
             $residentId = Auth::user()->resident->id;
 
-            // Query hanya submission milik residen tersebut
             $query = Submission::where('resident_id', $residentId)
-                ->with(['taskCategory', 'supervisor']) // Eager loading untuk performa
-                ->select('submissions.*');
+                // Eager load relasi baru
+                ->with(['taskCategory', 'supervisor', 'stage', 'division']);
+
+             // === BAGIAN YANG DIPERBARUI UNTUK FILTER ===
+            if ($categoryId = $request->get('category_id')) {
+                $query->where('task_category_id', $categoryId);
+            }
+            if ($divisionId = $request->get('division_id')) {
+                $query->where('division_id', $divisionId);
+            }
+            if ($stageId = $request->get('stage_id')) {
+                $query->where('stage_id', $stageId);
+            }
 
             return DataTables::of($query)
                 ->addIndexColumn() // Menambahkan kolom nomor urut
@@ -36,6 +49,11 @@ class SubmissionController extends Controller
                 })
                 ->addColumn('supervisor', function ($row) {
                     return $row->supervisor->name ?? '-';
+                })
+                ->addColumn('stage', fn ($row) => $row->stage->name ?? '-')
+                // Menambahkan pengecekan apakah relasi division ada sebelum mengambil nama
+                ->addColumn('division', function ($row) {
+                    return $row->division ? $row->division->name : '-';
                 })
                 ->addColumn('status', function ($row) {
                     if ($row->status == 'verified') {
@@ -65,8 +83,12 @@ class SubmissionController extends Controller
                 ->make(true);
         }
 
-        // Jika bukan request AJAX, tampilkan view-nya saja
-        return view('submissions.history');
+       // Ambil data untuk dropdown filter dan kirim ke view
+        $taskCategories = TaskCategory::orderBy('name')->get();
+        $divisions = Division::orderBy('name')->get();
+        $stages = Stage::orderBy('order')->get();
+
+        return view('submissions.history', compact('taskCategories', 'divisions', 'stages'));
     }
 
     public function edit(Submission $submission)

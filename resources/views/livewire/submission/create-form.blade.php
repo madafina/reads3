@@ -1,12 +1,12 @@
 <div>
-    @section('title', 'Upload Tugas Ilmiah')
+    @section('title', 'Upload Ilmiah')
     @section('content_header')
-        <h1 class="m-0 text-dark">Form Upload Tugas Ilmiah</h1>
+        <h1 class="m-0 text-dark">Form Upload Ilmiah</h1>
     @stop
 
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Masukkan Detail Tugas</h3>
+            <h3 class="card-title">Masukkan Detail Ilmiah</h3>
         </div>
         <form wire:submit="save">
             <div class="card-body">
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="task_category_id">Kategori Tugas</label>
+                    <label for="task_category_id">Kategori Ilmiah</label>
                     <select class="form-control @error('task_category_id') is-invalid @enderror" id="task_category_id" wire:model.defer="task_category_id">
                         <option value="">-- Pilih Kategori --</option>
                         @foreach ($taskCategories as $category)

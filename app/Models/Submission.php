@@ -29,6 +29,10 @@ class Submission extends Model
         return $this->belongsTo(TaskCategory::class);
     }
 
+    public function stage()
+    {
+        return $this->belongsTo(Stage::class);
+    }
     public function division()
     {
         return $this->belongsTo(Division::class);

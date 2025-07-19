@@ -76,6 +76,7 @@ class CreateForm extends Component
         // Buat record di database
         Submission::create([
             'resident_id' => $this->resident->id,
+            'stage_id' => $this->resident->current_stage_id,
             'title' => $this->title,
             'task_category_id' => $this->task_category_id,
             'supervisor_id' => $this->supervisor_id,
