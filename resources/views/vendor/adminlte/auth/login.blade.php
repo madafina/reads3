@@ -95,11 +95,11 @@
     @endif
 
     {{-- Register link --}}
-    @if($registerUrl)
+    {{-- @if($registerUrl)
         <p class="my-0">
             <a href="{{ $registerUrl }}">
                 {{ __('adminlte::adminlte.register_a_new_membership') }}
             </a>
         </p>
-    @endif
+    @endif --}}
 @stop

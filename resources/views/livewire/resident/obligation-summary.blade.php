@@ -8,7 +8,7 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th style="width: 45%">Nama Kewajiban</th>
+                            <th style="width: 45%">Kategori Ilmiah</th>
                             <th style="width: 20%">Progres</th>
                             <th style="width: 20%">Status</th>
                             <th style="width: 15%" class="text-center">Aksi</th> {{-- Header baru --}}

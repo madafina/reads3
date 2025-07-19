@@ -11,12 +11,12 @@ use App\Http\Controllers\Admin\LecturerController as AdminLecturerController;
 use App\Http\Controllers\Admin\RequirementRuleController as AdminRequirementRuleController;
 use App\Http\Controllers\Admin\TaskCategoryController as AdminTaskCategoryController;
 use App\Http\Controllers\Admin\DivisionController as AdminDivisionController;
-use App\Http\Controllers\Resident\ResidentController; 
-
+use App\Http\Controllers\Resident\ResidentController;
+use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
 
 
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Auth::routes();
@@ -39,27 +39,29 @@ Route::middleware('auth')->group(function () {
     })->name('home');
 
     // Route khusus untuk dashboard residen
-    Route::get('/resident/dashboard', ResidentDashboard::class)->name('resident.dashboard');
-
-    // Tambahkan route lain di sini nanti
-
+    Route::get('/resident/dashboard', ResidentDashboard::class)
+        ->middleware('role:Residen')
+        ->name('resident.dashboard');
 
     Route::get('/submissions/create', [SubmissionController::class, 'create'])
-        ->middleware('role:Residen') // Pastikan hanya residen yang bisa akses
+        ->middleware('role:Residen')
         ->name('submissions.create');
 
     Route::get('/submissions/history', [SubmissionController::class, 'history'])
         ->middleware('role:Residen')
         ->name('submissions.history');
 
-    Route::get('/resident/summary', [ResidentController::class, 'summary']) // Baris BARU
-    ->middleware('role:Residen')
-    ->name('resident.summary');
+    Route::get('/resident/summary', [ResidentController::class, 'summary'])
+        ->middleware('role:Residen')
+        ->name('resident.summary');
 
     Route::get('/resident/browse', [ResidentController::class, 'browse'])
-    ->middleware('role:Residen')
-    ->name('resident.browse');
+        ->middleware('role:Residen')
+        ->name('resident.browse');
 
+    Route::get('/submissions/{submission}/edit', [SubmissionController::class, 'edit'])
+        ->middleware('role:Residen')
+        ->name('submissions.edit');
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -84,4 +86,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('divisions', AdminDivisionController::class);
     Route::get('divisions/{division}/staff', [AdminDivisionController::class, 'staff'])->name('divisions.staff');
     Route::put('divisions/{division}/staff', [AdminDivisionController::class, 'updateStaff'])->name('divisions.staff.update');
+
+    Route::get('promotions', [AdminPromotionController::class, 'index'])->name('promotions.index');
+    Route::post('promotions/{resident}/promote', [AdminPromotionController::class, 'promote'])->name('promotions.promote');
 });

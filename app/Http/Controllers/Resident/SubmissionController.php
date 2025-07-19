@@ -47,9 +47,15 @@ class SubmissionController extends Controller
                     }
                 })
                 ->addColumn('action', function($row){
-                    // Tombol untuk melihat detail atau file
-                    $btn = '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-primary btn-sm">Lihat</a>';
-                    return $btn;
+                    $viewBtn = '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-primary btn-sm">Lihat File</a>';
+                    
+                    // Tombol edit hanya muncul jika status 'pending'
+                    $editBtn = '';
+                    if ($row->status == 'pending') {
+                        $editBtn = '<a href="'. route('submissions.edit', $row->id) .'" class="btn btn-warning btn-sm ml-1">Edit</a>';
+                    }
+
+                    return $viewBtn . $editBtn;
                 })
                  // 2. TAMBAHKAN BLOK INI UNTUK MEMFORMAT TANGGAL
                 ->editColumn('presentation_date', function ($row) {
@@ -61,5 +67,21 @@ class SubmissionController extends Controller
 
         // Jika bukan request AJAX, tampilkan view-nya saja
         return view('submissions.history');
+    }
+
+    public function edit(Submission $submission)
+    {
+        // Pastikan residen hanya bisa mengedit tugasnya sendiri
+        if ($submission->resident_id !== Auth::user()->resident->id) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit tugas ini.');
+        }
+
+        // Pastikan hanya tugas pending yang bisa diedit
+        if ($submission->status !== 'pending') {
+            return redirect()->route('submissions.history')->with('error', 'Tugas yang sudah diverifikasi atau ditolak tidak dapat diedit.');
+        }
+
+        return view('submissions.edit', compact('submission'));
+        // return view('submissions.edit', ['submissionId' => $submission->id]);
     }
 }

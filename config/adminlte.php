@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => 'Reads',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-    'logo_img_class' => 'brand-image img-circle elevation-3',
+    'logo' => '&nbsp;',
+    'logo_img' => 'dist/img/reads-logo.png',
+    'logo_img_class' => 'brand-image',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'Reads PPDS Interna FK UNS',
 
     /*
     |--------------------------------------------------------------------------
@@ -84,13 +84,13 @@ return [
     */
 
     'auth_logo' => [
-        'enabled' => false,
+        'enabled' => true,
         'img' => [
-            'path' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
-            'alt' => 'Auth Logo',
+            'path' => 'dist/img/reads.png',
+            'alt' => 'READS',
             'class' => '',
-            'width' => 50,
-            'height' => 50,
+            'width' => '',
+            'height' => 100,
         ],
     ],
 
@@ -348,6 +348,13 @@ return [
         ],
 
         [
+            'text' => 'Promosi Tahap',
+            'route'  => 'admin.promotions.index',
+            'icon' => 'fas fa-fw fa-angle-double-up',
+            'can'  => 'manage-users',
+        ],
+
+        [
             'text'    => 'Manajemen Pengguna',
             'icon'    => 'fas fa-fw fa-users',
             'can'     => 'manage-users',
@@ -403,21 +410,21 @@ return [
             'header' => 'MENU RESIDEN',
             'can' => 'create-submission', // Hanya untuk role Residen
         ],
-         [
+        [
             'text'    => 'Ilmiah Saya',
             'icon'    => 'fas fa-fw fa-history',
-            'route'   => 'submissions.history', 
+            'route'   => 'submissions.history',
             'can'     => 'create-submission',
         ],
         [
             'text'    => 'Upload Ilmiah',
             'icon'    => 'fas fa-fw fa-upload',
-            'route'   => 'submissions.create', 
+            'route'   => 'submissions.create',
             'role'     => 'create-submission',
-        ],       
+        ],
 
         [
-            'text'    => 'Rekapitulasi Kewajiban',
+            'text'    => 'Rekap Ilmiah',
             'icon'    => 'fas fa-fw fa-book-open',
             'route'   => 'resident.summary',
             'role'    => 'Residen',
@@ -486,7 +493,7 @@ return [
             ],
         ],
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
