@@ -110,17 +110,17 @@ class DivisionController extends Controller
      */
     // app/Http/Controllers/Admin/DivisionController.php
 
-    public function updateStaff(Request $request, Division $division)
-    {
-        $request->validate([
-            'assigned_staff' => 'nullable|array',
-            'assigned_staff.*' => 'exists:users,id',
-        ]);
+public function updateStaff(Request $request, Division $division)
+{
+    $request->validate([
+        'assigned_staff' => 'nullable|array',
+        'assigned_staff.*' => 'exists:users,id',
+    ]);
 
-        // Gunakan sync() untuk memperbarui relasi many-to-many
-        // Ini akan otomatis menambah/menghapus staf sesuai pilihan di kolom kanan
-        $division->staff()->sync($request->assigned_staff ?? []);
+    // Gunakan sync() untuk memperbarui relasi many-to-many
+    // Ini akan otomatis menambah/menghapus staf sesuai pilihan di kolom kanan
+    $division->staff()->sync($request->assigned_staff ?? []);
 
-        return redirect()->route('admin.divisions.index')->with('success', 'Daftar staf untuk divisi ' . $division->name . ' berhasil diperbarui.');
-    }
+    return redirect()->route('admin.divisions.index')->with('success', 'Daftar staf untuk divisi '.$division->name.' berhasil diperbarui.');
+}
 }
