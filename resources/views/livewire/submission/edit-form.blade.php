@@ -1,12 +1,30 @@
 <div>
+    {{-- 1. Tambahkan push 'css' untuk styling kustom --}}
+    @push('css')
+        <style>
+            /* Perbaikan untuk menyamakan tinggi dan border Select2 dengan form input lain */
+           
+            .select2-container .select2-selection--single  {
+                height: calc(2.25rem + 2px) !important;
+                border:1px solid #ced4da;
+                border-radius:4px;
+            }
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+                line-height: 2.25rem;
+                padding-left: .75rem !important;
+            }
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+                height: 2.25rem !important;
+            }
+        </style>
+    @endpush
+
     <div class="card card-warning">
         <div class="card-header">
-            <h3 class="card-title">Edit Detail Ilmiah</h3>
+            <h3 class="card-title">Edit Detail Tugas</h3>
         </div>
         <form wire:submit.prevent="update">
             <div class="card-body">
-                {{-- Form ini sangat mirip dengan form 'create', --}}
-                {{-- tapi `wire:model` akan otomatis mengisi nilainya dari properti komponen --}}
                 
                 <div class="form-group">
                     <label for="title">Judul Ilmiah</label>
@@ -15,7 +33,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="task_category_id">Kategori Ilmiah</label>
+                    <label for="task_category_id">Kategori Tugas</label>
                     <select class="form-control @error('task_category_id') is-invalid @enderror" id="task_category_id" wire:model.defer="task_category_id">
                         @foreach ($taskCategories as $category)
                             <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -36,15 +54,16 @@
                     </div>
                 @endif
 
-                <div class="form-group">
-                    <label for="supervisor_id">Dosen Pembimbing</label>
-                    <select class="form-control @error('supervisor_id') is-invalid @enderror" id="supervisor_id" wire:model.defer="supervisor_id">
+                <div class="form-group" wire:ignore>
+                    <label for="supervisor_id_select_edit">Dosen Pembimbing</label>
+                    <select class="form-control" id="supervisor_id_select_edit" style="width: 100%;">
+                        <option value="">-- Pilih Dosen --</option>
                         @foreach ($supervisors as $supervisor)
                             <option value="{{ $supervisor->id }}">{{ $supervisor->name }}</option>
                         @endforeach
                     </select>
-                    @error('supervisor_id') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
+                @error('supervisor_id') <span class="text-danger">{{ $message }}</span> @enderror
 
                 <div class="form-group">
                     <label for="presentation_date">Tanggal Maju / Sidang</label>
@@ -72,4 +91,24 @@
             </div>
         </form>
     </div>
+
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            // Inisialisasi Select2
+            $('#supervisor_id_select_edit').select2({
+                theme: 'bootstrap4',
+                placeholder: "ketik minimal 4 huruf",
+                allowClear: true
+            });
+
+            // Set nilai awal Select2 dari data Livewire
+            $('#supervisor_id_select_edit').val(@this.get('supervisor_id')).trigger('change');
+
+            // Saat nilai di Select2 berubah, kirim nilainya ke properti Livewire
+            $('#supervisor_id_select_edit').on('change', function (e) {
+                var data = $(this).val();
+                @this.set('supervisor_id', data);
+            });
+        });
+    </script>
 </div>

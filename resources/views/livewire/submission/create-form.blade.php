@@ -1,14 +1,27 @@
 <div>
-    @section('title', 'Upload Ilmiah')
-    @section('content_header')
-        <h1 class="m-0 text-dark">Form Upload Ilmiah</h1>
-    @stop
-
+    @push('css')
+        <style>
+            /* Perbaikan untuk menyamakan tinggi dan border Select2 dengan form input lain */
+           
+            .select2-container .select2-selection--single  {
+                height: calc(2.25rem + 2px) !important;
+                border:1px solid #ced4da;
+                border-radius:4px;
+            }
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered {
+                line-height: 2.25rem;
+                padding-left: .75rem !important;
+            }
+            .select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+                height: 2.25rem !important;
+            }
+        </style>
+    @endpush
     <div class="card card-primary">
         <div class="card-header">
-            <h3 class="card-title">Masukkan Detail Ilmiah</h3>
+            <h3 class="card-title">Masukkan Detail Tugas</h3>
         </div>
-        <form wire:submit="save">
+        <form wire:submit.prevent="save">
             <div class="card-body">
 
                 @if (session()->has('success'))
@@ -24,7 +37,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="task_category_id">Kategori Ilmiah</label>
+                    <label for="task_category_id">Kategori Tugas</label>
                     <select class="form-control @error('task_category_id') is-invalid @enderror" id="task_category_id" wire:model.defer="task_category_id">
                         <option value="">-- Pilih Kategori --</option>
                         @foreach ($taskCategories as $category)
@@ -34,7 +47,6 @@
                     @error('task_category_id') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
-                {{-- Tampilkan field ini hanya jika di Tahap II --}}
                 @if ($showDivisionField)
                     <div class="form-group">
                         <label for="division_id">Divisi</label>
@@ -48,17 +60,17 @@
                     </div>
                 @endif
 
-                <div class="form-group">
-                    <label for="supervisor_id">Dosen Pembimbing</label>
-                    <select class="form-control @error('supervisor_id') is-invalid @enderror" id="supervisor_id" wire:model.defer="supervisor_id">
+                <div class="form-group" wire:ignore>
+                    <label for="supervisor_id_select">Dosen Pembimbing</label>
+                    <select class="form-control" id="supervisor_id_select" style="width: 100%;">
                         <option value="">-- Pilih Dosen --</option>
                         @foreach ($supervisors as $supervisor)
                             <option value="{{ $supervisor->id }}">{{ $supervisor->name }}</option>
                         @endforeach
                     </select>
-                    @error('supervisor_id') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
-
+                @error('supervisor_id') <span class="text-danger">{{ $message }}</span> @enderror
+                
                 <div class="form-group">
                     <label for="presentation_date">Tanggal Maju / Sidang</label>
                     <input type="date" class="form-control @error('presentation_date') is-invalid @enderror" id="presentation_date" wire:model.defer="presentation_date">
@@ -76,10 +88,9 @@
                     <input type="file" class="form-control-file @error('file') is-invalid @enderror" id="file" wire:model="file">
                     @error('file') <span class="text-danger">{{ $message }}</span> @enderror
                     
-                    {{-- Progress bar upload --}}
                     <div wire:loading wire:target="file" class="mt-2">
                         <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 100%;" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">Uploading...</div>
+                            <div class="progress-bar" role="progressbar" style="width: 100%;">Uploading...</div>
                         </div>
                     </div>
                 </div>
@@ -94,4 +105,18 @@
         </form>
     </div>
 
+    <script>
+        document.addEventListener('livewire:initialized', () => {
+            $('#supervisor_id_select').select2({
+                theme: 'bootstrap4', 
+                placeholder: "ketik minimal 4 huruf",
+                allowClear: true
+            });
+
+            $('#supervisor_id_select').on('change', function (e) {
+                var data = $(this).val();
+                @this.set('supervisor_id', data);
+            });
+        });
+    </script>
 </div>

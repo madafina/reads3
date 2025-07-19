@@ -12,13 +12,15 @@
             <div class="card">
                 <div class="card-body">
                     <h5 class="card-title">Tahap Saat Ini: <strong>{{ $resident->currentStage->name ?? 'Belum ada tahap' }}</strong></h5>
-                    <p class="card-text">Berikut adalah progres penyelesaian kewajiban ilmiah Anda pada tahap ini.</p>
+                    <p class="card-text">Berikut adalah progres penyelesaian kewajiban ilmiah Anda.</p>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="row">
+    @livewire('resident.obligation-summary')
+
+    {{-- <div class="row">
         @forelse ($rules as $rule)
             <div class="col-md-4">
                 <div class="info-box mb-3">
@@ -44,7 +46,7 @@
                 <p>Belum ada aturan kewajiban yang diatur untuk tahap ini.</p>
             </div>
         @endforelse
-    </div>
+    </div> --}}
 
     @stop
 </div>

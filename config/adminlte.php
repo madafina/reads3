@@ -382,12 +382,12 @@ return [
 
         // MENU RESIDEN
 
-        [
-            'text'    => 'Rekap Ilmiah',
-            'icon'    => 'fas fa-fw fa-book-open',
-            'route'   => 'resident.summary',
-            'can'    => 'create-submission',
-        ],
+        // [
+        //     'text'    => 'Rekap Ilmiah',
+        //     'icon'    => 'fas fa-fw fa-book-open',
+        //     'route'   => 'resident.summary',
+        //     'can'    => 'create-submission',
+        // ],
         [
             'text'    => 'Ilmiah',
             'icon'    => 'fas fa-fw fa-history',
