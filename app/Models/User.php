@@ -6,16 +6,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class User extends Authenticatable 
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, HasRoles;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
@@ -26,7 +26,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -45,4 +45,47 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function resident()
+    {
+        return $this->hasOne(Resident::class);
+    }
+
+    public function lecturer()
+    {
+        return $this->hasOne(Lecturer::class);
+    }
+
+    public function divisions()
+    {
+        // Seorang User (Dosen) bisa bertugas di banyak Divisi
+        return $this->belongsToMany(Division::class, 'division_staff');
+    }
+
+    public function adminlte_image()
+    {
+        // Contoh logika: jika user punya profil residen/dosen dan ada foto, tampilkan.
+        // Jika tidak, tampilkan gambar default dari Gravatar.
+        $photo = $this->resident->photo ?? $this->lecturer->photo ?? null;
+
+        if ($photo) {
+            // Asumsi foto disimpan di storage/app/public/photos
+            return asset('storage/' . $photo);
+        }
+
+        return 'https://www.gravatar.com/avatar/' . md5(strtolower(trim($this->email)));
+    }
+
+    public function adminlte_desc()
+    {
+        return $this->getRoleNames()->first() ?? 'User';
+    }
+
+    public function adminlte_profile_url()
+    {
+        // Nanti Anda bisa membuat route 'profile.show'
+        // Untuk sekarang, kita arahkan ke halaman home saja.
+        return 'home';
+    }
+
 }
