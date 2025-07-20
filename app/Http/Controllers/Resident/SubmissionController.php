@@ -64,8 +64,9 @@ class SubmissionController extends Controller
                         return '<span class="badge badge-warning">Pending</span>';
                     }
                 })
+               
                 ->addColumn('action', function($row){
-                    $viewBtn = '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-primary btn-sm">Lihat File</a>';
+                    $viewBtn = '<a href="'. route('submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat Detail</a>';
                     
                     // Tombol edit hanya muncul jika status 'pending'
                     $editBtn = '';

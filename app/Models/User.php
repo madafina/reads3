@@ -83,9 +83,7 @@ class User extends Authenticatable
 
     public function adminlte_profile_url()
     {
-        // Nanti Anda bisa membuat route 'profile.show'
-        // Untuk sekarang, kita arahkan ke halaman home saja.
-        return 'home';
+        return route('profile.edit');
     }
 
 }

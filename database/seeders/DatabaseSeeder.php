@@ -16,7 +16,7 @@ class DatabaseSeeder extends Seeder
             StageSeeder::class,
             DivisionSeeder::class,
             TaskCategorySeeder::class,
-            UserSeeder::class, // Butuh Role & Stage
+            // UserSeeder::class, // Butuh Role & Stage
             RequirementRuleSeeder::class, // Butuh Stage, Division, & TaskCategory
         ]);
     }

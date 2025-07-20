@@ -13,7 +13,11 @@ class PromotionController extends Controller
 {
     public function index(PromotionDataTable $dataTable)
     {
-        return $dataTable->render('admin.promotions.index');
+        // Ambil data tahap untuk dropdown filter
+        $stages = Stage::orderBy('order')->get();
+        
+        // Kirim data 'stages' ke view
+        return $dataTable->render('admin.promotions.index', compact('stages'));
     }
 
     public function promote(Resident $resident)

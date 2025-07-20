@@ -48,7 +48,7 @@ class ResidentController extends Controller
                     ];
                     return '<span class="badge badge-'.($badges[$row->status] ?? 'secondary').'">'.ucfirst($row->status).'</span>';
                 })
-                ->addColumn('file', fn($row) => '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-secondary btn-sm">Lihat</a>')
+                ->addColumn('file', fn($row) => '<a href="'. route('admin.submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat</a>')
                 ->rawColumns(['status', 'file'])
                 ->make(true);
         }

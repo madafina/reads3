@@ -41,7 +41,7 @@
                 <div class="icon">
                     <i class="fas fa-fw fa-user-graduate"></i>
                 </div>
-                <a href="#" class="small-box-footer">
+                <a href="{{ route('admin.residents.index') }}" class="small-box-footer">
                     Lihat Detail <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>
@@ -57,7 +57,7 @@
                 <div class="icon">
                     <i class="fas fa-fw fa-user-tie"></i>
                 </div>
-                <a href="#" class="small-box-footer">
+                <a href="{{ route('admin.lecturers.index') }}" class="small-box-footer">
                     Lihat Detail <i class="fas fa-arrow-circle-right"></i>
                 </a>
             </div>

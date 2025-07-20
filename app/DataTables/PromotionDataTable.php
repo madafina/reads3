@@ -25,15 +25,18 @@ class PromotionDataTable extends DataTable
             ->addColumn('name', fn($row) => $row->user->name ?? 'N/A')
             ->addColumn('current_stage', fn($row) => $row->currentStage->name ?? 'N/A')
             ->addColumn('completion_status', function($row) {
+                if (!$row->currentStage) return '<span class="badge badge-secondary">N/A</span>';
                 $isComplete = $this->progressService->isStageComplete($row);
-                if ($isComplete) {
-                    return '<span class="badge badge-success">Lengkap</span>';
-                }
-                return '<span class="badge badge-warning">Belum Lengkap</span>';
+                return $isComplete ? '<span class="badge badge-success">Lengkap</span>' : '<span class="badge badge-warning">Belum Lengkap</span>';
+            })
+             ->addColumn('show', function($row){
+                // Mengganti tombol file dengan tombol detail
+                return '<a href="'. route('admin.residents.show', $row->user->resident->id) .'" class="btn btn-info btn-sm">Lihat</a>';
             })
             ->addColumn('action', function($row) {
+                if (!$row->currentStage) return 'Tidak ada aksi';
                 $isComplete = $this->progressService->isStageComplete($row);
-                if ($isComplete && $row->currentStage->order < 4) { // Asumsi 4 adalah tahap terakhir
+                if ($isComplete && $row->currentStage->order < 4) {
                     $nextStageName = \App\Models\Stage::where('order', '>', $row->currentStage->order)->orderBy('order')->first()->name ?? '';
                     $form = '
                         <form action="'.route('admin.promotions.promote', $row->id).'" method="POST">
@@ -47,12 +50,37 @@ class PromotionDataTable extends DataTable
                 }
                 return 'Tidak ada aksi';
             })
-            ->rawColumns(['completion_status', 'action']);
+            ->rawColumns(['completion_status', 'show', 'action']);
     }
 
     public function query(Resident $model)
     {
-        return $model->newQuery()->with(['user', 'currentStage']);
+        $query = $model->newQuery()->with(['user', 'currentStage']);
+
+        // Filter berdasarkan tahap
+        if ($stageId = $this->request()->get('stage_id')) {
+            $query->where('current_stage_id', $stageId);
+        }
+
+        // Filter berdasarkan status kelengkapan
+        if ($status = $this->request()->get('status')) {
+            $residents = Resident::with('currentStage')->get();
+            $filteredIds = [];
+
+            foreach ($residents as $resident) {
+                if (!$resident->currentStage) continue;
+
+                $isComplete = $this->progressService->isStageComplete($resident);
+                if ($status === 'complete' && $isComplete) {
+                    $filteredIds[] = $resident->id;
+                } elseif ($status === 'incomplete' && !$isComplete) {
+                    $filteredIds[] = $resident->id;
+                }
+            }
+            $query->whereIn('id', $filteredIds);
+        }
+
+        return $query;
     }
 
     public function html()
@@ -71,6 +99,7 @@ class PromotionDataTable extends DataTable
             Column::make('name')->title('Nama Residen'),
             Column::make('current_stage')->title('Tahap Saat Ini'),
             Column::computed('completion_status')->title('Status Kelengkapan'),
+            Column::computed('show')->title('Detail')->addClass('text-center'),
             Column::computed('action')->title('Aksi')->addClass('text-center'),
         ];
     }

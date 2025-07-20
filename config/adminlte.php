@@ -340,17 +340,32 @@ return [
             'can' => 'manage-users', // Hanya tampil jika user punya permission ini
         ],
 
+
+
+        // config/adminlte.php -> 'menu'
         [
-            'text' => 'Residen',
-            'route'  => 'admin.residents.index',
-            'icon' => 'fas fa-fw fa-user-graduate',
-            'can'  => 'manage-users',
-        ],
-        [
-            'text' => 'Dosen',
-            'route'  => 'admin.lecturers.index',
-            'icon' => 'fas fa-fw fa-user-tie',
-            'can'  => 'manage-users',
+            'text'    => 'Manajemen Pengguna',
+            'icon'    => 'fas fa-fw fa-users-cog',
+            'can'     => 'manage-users',
+            'submenu' => [
+                [
+                    'text' => 'Residen',
+                    'route'  => 'admin.residents.index',
+                    'icon' => 'fas fa-fw fa-user-graduate',
+                    'can'  => 'manage-users',
+                ],
+                [
+                    'text' => 'Dosen',
+                    'route'  => 'admin.lecturers.index',
+                    'icon' => 'fas fa-fw fa-user-tie',
+                    'can'  => 'manage-users',
+                ],
+                [
+                    'text' => 'Semua Pengguna',
+                    'route'  => 'admin.users.index',
+                    'icon' => 'fas fa-fw fa-users',
+                ],
+            ],
         ],
 
         [
@@ -399,7 +414,7 @@ return [
             'icon'    => 'fas fa-fw fa-archive',
             'route'   => 'resident.browse',
             'can'    => 'create-submission',
-        ],  
+        ],
 
         // MENU DOSEN     
         [
@@ -420,7 +435,7 @@ return [
         //     'icon'  => 'fas fa-fw fa-archive',
         //     'can'   => 'view-all-submissions',
         // ],
-       
+
     ],
 
     /*

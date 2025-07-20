@@ -14,6 +14,8 @@ use App\Http\Controllers\Admin\DivisionController as AdminDivisionController;
 use App\Http\Controllers\Resident\ResidentController;
 use App\Http\Controllers\Admin\PromotionController as AdminPromotionController;
 use App\Http\Controllers\LecturerController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\ProfileController;
 
 // Arahkan /home untuk Dosen
 Route::get('/home', function () {
@@ -23,7 +25,6 @@ Route::get('/home', function () {
     if ($user->hasRole('Dosen')) {
         return redirect()->route('lecturer.dashboard');
     }
-    // ...
 })->name('home');
 
 
@@ -49,6 +50,9 @@ Route::middleware('auth')->group(function () {
         }
         return 'Dashboard Umum';
     })->name('home');
+
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
     // Route khusus untuk dashboard residen
     Route::get('/resident/dashboard', ResidentDashboard::class)
@@ -98,6 +102,9 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('promotions', [AdminPromotionController::class, 'index'])->name('promotions.index');
     Route::post('promotions/{resident}/promote', [AdminPromotionController::class, 'promote'])->name('promotions.promote');
+
+    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
 });
 
 // Buat grup baru untuk route dosen
@@ -105,7 +112,7 @@ Route::middleware(['auth', 'role:Dosen|Admin'])->prefix('admin')->name('admin.')
     Route::get('/submissions/all', [AdminSubmissionController::class, 'all'])->name('submissions.all');
     Route::resource('residents', AdminResidentController::class);
     Route::get('/residents/{resident}/submissions', [AdminResidentController::class, 'submissions'])->name('residents.submissions');
-     Route::get('/submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('submissions.show');
+    Route::get('/submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('submissions.show');
 });
 
 Route::middleware(['auth', 'role:Dosen'])->prefix('lecturer')->name('lecturer.')->group(function () {
