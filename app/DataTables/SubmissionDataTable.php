@@ -23,32 +23,16 @@ class SubmissionDataTable extends DataTable
             ->addIndexColumn()
             ->addColumn('resident_name', fn($row) => $row->resident->user->name ?? 'N/A')
             ->addColumn('task_category_name', fn($row) => $row->taskCategory->name ?? 'N/A')
-            ->addColumn('file', function ($row) {
-                return '<a href="' . asset('storage/' . $row->file_path) . '" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>';
+            // ->addColumn('file', function ($row) {
+            //     return '<a href="' . asset('storage/' . $row->file_path) . '" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>';
+            // })
+            
+            // ->rawColumns(['file', 'action'])
+            ->addColumn('action', function($row){
+                // Mengganti tombol file dengan tombol detail
+                return '<a href="'. route('admin.submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat Detail</a>';
             })
-            // UBAH TOTAL BAGIAN INI
-            ->addColumn('action', function ($row) {
-                $verifyForm = '
-                <form action="' . route('admin.submissions.verify', $row->id) . '" method="POST" class="d-inline">
-                    ' . csrf_field() . '
-                    ' . method_field("PUT") . '
-                    <button type="submit" class="btn btn-success btn-sm" onclick="return confirm(\'Anda yakin ingin memverifikasi ilmiah ini?\')">
-                        Verify
-                    </button>
-                </form>
-            ';
-                $rejectForm = '
-                <form action="' . route('admin.submissions.reject', $row->id) . '" method="POST" class="d-inline">
-                    ' . csrf_field() . '
-                    ' . method_field("PUT") . '
-                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Anda yakin ingin menolak ilmiah ini?\')">
-                        Reject
-                    </button>
-                </form>
-            ';
-                return $verifyForm . ' ' . $rejectForm;
-            })
-            ->rawColumns(['file', 'action'])
+            ->rawColumns(['action'])
             ->setRowId('id');
     }
     /**
@@ -86,7 +70,7 @@ class SubmissionDataTable extends DataTable
             Column::make('resident_name')->title('Nama Residen'),
             Column::make('title')->title('Judul'),
             Column::make('task_category_name')->title('Kategori'),
-            Column::computed('file')->title('File')->width(100),
+            // Column::computed('file')->title('File')->width(100),
             Column::computed('action')
                 ->exportable(false)
                 ->printable(false)

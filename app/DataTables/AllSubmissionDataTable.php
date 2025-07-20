@@ -32,8 +32,12 @@ class AllSubmissionDataTable extends DataTable
                 $status = $row->status;
                 return '<span class="badge badge-'.($badges[$status] ?? 'secondary').'">'.ucfirst($status).'</span>';
             })
-            ->addColumn('file', fn($row) => '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>')
-            ->rawColumns(['status', 'file'])
+            // ->addColumn('file', fn($row) => '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>')
+            ->addColumn('action', function($row){
+                // Mengganti tombol file dengan tombol detail
+                return '<a href="'. route('admin.submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat Detail</a>';
+            })
+            ->rawColumns(['status', 'action'])
             ->setRowId('id');
     }
 
@@ -76,7 +80,8 @@ class AllSubmissionDataTable extends DataTable
             Column::make('division_name')->title('Divisi'), // Kolom baru
             Column::make('presentation_date')->title('Tgl Sidang'),
             Column::make('status')->title('Status'),
-            Column::computed('file')->title('File')->addClass('text-center'),
+            // Column::computed('file')->title('File')->addClass('text-center'),
+            Column::computed('action')->title('Aksi')->addClass('text-center'),
         ];
     }
 

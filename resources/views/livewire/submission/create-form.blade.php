@@ -1,8 +1,6 @@
 <div>
     @push('css')
         <style>
-            /* Perbaikan untuk menyamakan tinggi dan border Select2 dengan form input lain */
-           
             .select2-container .select2-selection--single  {
                 height: calc(2.25rem + 2px) !important;
                 border:1px solid #ced4da;
@@ -17,6 +15,7 @@
             }
         </style>
     @endpush
+
     <div class="card card-primary">
         <div class="card-header">
             <h3 class="card-title">Masukkan Detail Tugas</h3>
@@ -34,6 +33,18 @@
                     <label for="title">Judul Ilmiah</label>
                     <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" wire:model.defer="title" placeholder="Masukkan judul">
                     @error('title') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Deskripsi (Opsional)</label>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" wire:model.defer="description" rows="3"></textarea>
+                    @error('description') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="seminar_title">Judul Seminar (Jika berbeda, opsional)</label>
+                    <input type="text" class="form-control @error('seminar_title') is-invalid @enderror" id="seminar_title" wire:model.defer="seminar_title">
+                    @error('seminar_title') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
                 <div class="form-group">
@@ -83,16 +94,30 @@
                     @error('grade') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
+                <hr>
+
                 <div class="form-group">
-                    <label for="file">Upload File (PDF, max 10MB)</label>
+                    <label for="file">File Ilmiah Utama (PDF, Wajib)</label>
                     <input type="file" class="form-control-file @error('file') is-invalid @enderror" id="file" wire:model="file">
                     @error('file') <span class="text-danger">{{ $message }}</span> @enderror
-                    
-                    <div wire:loading wire:target="file" class="mt-2">
-                        <div class="progress">
-                            <div class="progress-bar" role="progressbar" style="width: 100%;">Uploading...</div>
-                        </div>
-                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="presentation_file">File Presentasi (Opsional)</label>
+                    <input type="file" class="form-control-file @error('presentation_file') is-invalid @enderror" id="presentation_file" wire:model="presentation_file">
+                    @error('presentation_file') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="grade_file">File Bukti Nilai (Opsional)</label>
+                    <input type="file" class="form-control-file @error('grade_file') is-invalid @enderror" id="grade_file" wire:model="grade_file">
+                    @error('grade_file') <span class="text-danger">{{ $message }}</span> @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="attendance_file">File Bukti Presensi (Opsional)</label>
+                    <input type="file" class="form-control-file @error('attendance_file') is-invalid @enderror" id="attendance_file" wire:model="attendance_file">
+                    @error('attendance_file') <span class="text-danger">{{ $message }}</span> @enderror
                 </div>
 
             </div>
@@ -108,8 +133,8 @@
     <script>
         document.addEventListener('livewire:initialized', () => {
             $('#supervisor_id_select').select2({
-                theme: 'bootstrap4', 
-                placeholder: "ketik minimal 4 huruf",
+                theme: 'bootstrap4',
+                placeholder: "Cari dan pilih nama dosen",
                 allowClear: true
             });
 

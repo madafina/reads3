@@ -3,9 +3,9 @@
 namespace App\Livewire\Submission;
 
 use App\Models\Division;
+use App\Models\Submission;
 use App\Models\TaskCategory;
 use App\Models\User;
-use App\Models\Submission;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -14,7 +14,7 @@ class CreateForm extends Component
 {
     use WithFileUploads;
 
-    // Properti untuk binding form
+    // Properti form lama
     public $title;
     public $task_category_id;
     public $division_id;
@@ -23,36 +23,32 @@ class CreateForm extends Component
     public $grade;
     public $file;
 
-    // Data untuk dropdown
-    public $taskCategories = [];
-    public $supervisors = [];
-    public $divisions = [];
+    // Properti baru
+    public $description;
+    public $seminar_title;
+    public $presentation_file;
+    public $grade_file;
+    public $attendance_file;
 
-    // State
+    // Data & State
+    public $taskCategories = [], $supervisors = [], $divisions = [];
     public $showDivisionField = false;
     public $resident;
 
     public function mount()
     {
         $this->resident = Auth::user()->resident()->with('currentStage')->first();
-
-        // Ambil data untuk dropdown
         $this->taskCategories = TaskCategory::orderBy('name')->get();
         $this->supervisors = User::role('Dosen')->orderBy('name')->get();
         $this->divisions = Division::orderBy('name')->get();
 
-        // Cek apakah residen berada di Tahap II untuk menampilkan pilihan divisi
         if ($this->resident && $this->resident->currentStage && $this->resident->currentStage->name === 'Tahap II') {
             $this->showDivisionField = true;
         }
 
-        // === LOGIKA BARU UNTUK PRE-SELECT FORM ===
-        // Cek parameter 'task_category_id' dari URL
         if (request()->has('task_category_id')) {
             $this->task_category_id = request('task_category_id');
         }
-
-        // Cek parameter 'division_id' dari URL (jika ada)
         if (request()->has('division_id')) {
             $this->division_id = request('division_id');
         }
@@ -65,32 +61,49 @@ class CreateForm extends Component
             'task_category_id' => 'required|exists:task_categories,id',
             'supervisor_id' => 'required|exists:users,id',
             'presentation_date' => 'required|date',
-            'file' => 'required|file|mimes:pdf|max:10240', // PDF max 10MB
+            'file' => 'required|file|mimes:pdf|max:10240',
             'division_id' => $this->showDivisionField ? 'required|exists:divisions,id' : 'nullable',
             'grade' => 'nullable|numeric|min:0|max:100',
+            'description' => 'nullable|string',
+            'seminar_title' => 'nullable|string|max:255',
+            'presentation_file' => 'nullable|file|max:10240',
+            'grade_file' => 'nullable|file|max:5120',
+            'attendance_file' => 'nullable|file|max:5120',
         ]);
 
-        // Simpan file ke storage
-        $filePath = $this->file->store('submissions', 'public');
-
-        // Buat record di database
-        Submission::create([
+        // === BAGIAN YANG DIPERBAIKI ===
+        // 1. Siapkan array data dengan kunci yang sesuai dengan kolom database
+        $dataToSave = [
             'resident_id' => $this->resident->id,
             'stage_id' => $this->resident->current_stage_id,
             'title' => $this->title,
+            'description' => $this->description,
+            'seminar_title' => $this->seminar_title,
             'task_category_id' => $this->task_category_id,
+            'division_id' => $this->showDivisionField ? $this->division_id : null,
             'supervisor_id' => $this->supervisor_id,
             'presentation_date' => $this->presentation_date,
-            'file_path' => $filePath,
-            'division_id' => $this->showDivisionField ? $this->division_id : null,
             'grade' => $this->grade,
-            'status' => 'pending', // Status awal
-        ]);
+            'status' => 'pending',
+        ];
 
-        // Beri notifikasi sukses dan reset form
-        session()->flash('success', 'Ilmiah berhasil diunggah dan sedang menunggu verifikasi.');
-        
-        // Alihkan ke histori setelah berhasil
+        // 2. Proses setiap file dan tambahkan path-nya ke array data
+        $dataToSave['file_path'] = $this->file->store('submissions', 'public');
+
+        if ($this->presentation_file) {
+            $dataToSave['presentation_file_path'] = $this->presentation_file->store('presentations', 'public');
+        }
+        if ($this->grade_file) {
+            $dataToSave['grade_file_path'] = $this->grade_file->store('grades', 'public');
+        }
+        if ($this->attendance_file) {
+            $dataToSave['attendance_file_path'] = $this->attendance_file->store('attendances', 'public');
+        }
+
+        // 3. Simpan data ke database
+        Submission::create($dataToSave);
+
+        session()->flash('success', 'Tugas ilmiah berhasil diunggah.');
         return redirect()->route('submissions.history');
     }
 

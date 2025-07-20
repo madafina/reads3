@@ -24,7 +24,14 @@ class EditForm extends Component
     public $supervisor_id;
     public $presentation_date;
     public $grade;
-    public $newFile; // Properti untuk file baru
+    public $newFile;
+
+    // Properti baru
+    public $description;
+    public $seminar_title;
+    public $new_presentation_file;
+    public $new_grade_file;
+    public $new_attendance_file;
 
     // Data untuk dropdown
     public $taskCategories = [];
@@ -32,11 +39,8 @@ class EditForm extends Component
     public $divisions = [];
     public $showDivisionField = false;
 
-    // === BAGIAN YANG DIPERBAIKI ===
-    // Method mount sekarang menerima ID (integer), bukan objek
     public function mount($submissionId)
     {
-        // Cari objek Submission berdasarkan ID yang diterima
         $submission = Submission::findOrFail($submissionId);
         $this->submission = $submission;
 
@@ -47,6 +51,8 @@ class EditForm extends Component
         $this->supervisor_id = $submission->supervisor_id;
         $this->presentation_date = $submission->presentation_date->format('Y-m-d');
         $this->grade = $submission->grade;
+        $this->description = $submission->description;
+        $this->seminar_title = $submission->seminar_title;
 
         // Ambil data untuk dropdown
         $this->taskCategories = TaskCategory::orderBy('name')->get();
@@ -62,36 +68,47 @@ class EditForm extends Component
 
     public function update()
     {
-        $this->validate([
+        // 1. Validasi semua input dan simpan hasilnya
+        $validatedData = $this->validate([
             'title' => 'required|string|max:255',
             'task_category_id' => 'required|exists:task_categories,id',
             'supervisor_id' => 'required|exists:users,id',
             'presentation_date' => 'required|date',
-            'newFile' => 'nullable|file|mimes:pdf|max:10240', // File baru opsional
             'division_id' => $this->showDivisionField ? 'required|exists:divisions,id' : 'nullable',
             'grade' => 'nullable|numeric|min:0|max:100',
+            'description' => 'nullable|string',
+            'seminar_title' => 'nullable|string|max:255',
+            'newFile' => 'nullable|file|mimes:pdf|max:10240',
+            'new_presentation_file' => 'nullable|file|max:10240',
+            'new_grade_file' => 'nullable|file|max:5120',
+            'new_attendance_file' => 'nullable|file|max:5120',
         ]);
+        
+        // 2. Hapus properti file dari array agar tidak error saat update model
+        unset($validatedData['newFile'], $validatedData['new_presentation_file'], $validatedData['new_grade_file'], $validatedData['new_attendance_file']);
 
-        $dataToUpdate = [
-            'title' => $this->title,
-            'task_category_id' => $this->task_category_id,
-            'supervisor_id' => $this->supervisor_id,
-            'presentation_date' => $this->presentation_date,
-            'division_id' => $this->showDivisionField ? $this->division_id : null,
-            'grade' => $this->grade,
-        ];
-
-        // Jika ada file baru yang diupload
+        // 3. Proses file-file baru jika ada
         if ($this->newFile) {
-            // Hapus file lama
             Storage::disk('public')->delete($this->submission->file_path);
-            // Simpan file baru dan update path
-            $dataToUpdate['file_path'] = $this->newFile->store('submissions', 'public');
+            $validatedData['file_path'] = $this->newFile->store('submissions', 'public');
+        }
+        if ($this->new_presentation_file) {
+            Storage::disk('public')->delete($this->submission->presentation_file_path);
+            $validatedData['presentation_file_path'] = $this->new_presentation_file->store('presentations', 'public');
+        }
+        if ($this->new_grade_file) {
+            Storage::disk('public')->delete($this->submission->grade_file_path);
+            $validatedData['grade_file_path'] = $this->new_grade_file->store('grades', 'public');
+        }
+        if ($this->new_attendance_file) {
+            Storage::disk('public')->delete($this->submission->attendance_file_path);
+            $validatedData['attendance_file_path'] = $this->new_attendance_file->store('attendances', 'public');
         }
 
-        $this->submission->update($dataToUpdate);
+        // 4. Update data di database
+        $this->submission->update($validatedData);
 
-        session()->flash('success', 'Ilmiah berhasil diperbarui.');
+        session()->flash('success', 'Tugas ilmiah berhasil diperbarui.');
         return redirect()->route('submissions.history');
     }
 

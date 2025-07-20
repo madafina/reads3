@@ -74,6 +74,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/submissions/{submission}/edit', [SubmissionController::class, 'edit'])
         ->middleware('role:Residen')
         ->name('submissions.edit');
+
+    Route::get('/submissions/{submission}', [SubmissionController::class, 'show'])->name('submissions.show');
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -103,6 +105,7 @@ Route::middleware(['auth', 'role:Dosen|Admin'])->prefix('admin')->name('admin.')
     Route::get('/submissions/all', [AdminSubmissionController::class, 'all'])->name('submissions.all');
     Route::resource('residents', AdminResidentController::class);
     Route::get('/residents/{resident}/submissions', [AdminResidentController::class, 'submissions'])->name('residents.submissions');
+     Route::get('/submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('submissions.show');
 });
 
 Route::middleware(['auth', 'role:Dosen'])->prefix('lecturer')->name('lecturer.')->group(function () {

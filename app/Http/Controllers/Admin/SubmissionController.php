@@ -48,4 +48,22 @@ class SubmissionController extends Controller
         // Kirim semua data filter ke view
         return $dataTable->render('admin.submissions.all', compact('stages', 'divisions'));
     }
+
+    public function show(Submission $submission)
+    {
+        $user = Auth::user();
+        $isViewerOnly = false; // Default: pengguna memiliki akses penuh
+
+        // Cek jika pengguna adalah Residen
+        if ($user->hasRole('Residen')) {
+            // Jika BUKAN pemilik submission
+            if ($submission->resident_id !== $user->resident->id) {
+                // Maka, tandai sebagai "hanya lihat"
+                $isViewerOnly = true;
+            }
+        }
+
+        // Semua orang bisa mengakses view, tetapi dengan data yang berbeda
+        return view('admin.submissions.show', compact('submission', 'isViewerOnly'));
+    }
 }

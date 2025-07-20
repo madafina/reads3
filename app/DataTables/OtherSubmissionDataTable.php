@@ -28,11 +28,17 @@ class OtherSubmissionDataTable extends DataTable
                 }
                 return '<span class="badge badge-secondary">Lainnya</span>';
             })
-            ->addColumn('file', function($row){
-                return '<button class="btn btn-secondary btn-sm" disabled>Lihat File</button>';
+            // ->addColumn('file', function($row){
+            //     return '<button class="btn btn-secondary btn-sm" disabled>Lihat File</button>';
+            // })
+            // === BAGIAN YANG DIPERBARUI ===
+            ->addColumn('action', function($row){
+                // Mengganti tombol file dengan tombol detail
+                return '<a href="'. route('submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat Detail</a>';
             })
-            ->rawColumns(['status', 'file'])
+            ->rawColumns(['status', 'action']) // Pastikan kolom action di-render sebagai HTML
             ->setRowId('id');
+            
     }
 
     public function query(Submission $model): QueryBuilder
@@ -41,7 +47,7 @@ class OtherSubmissionDataTable extends DataTable
 
         $query = $model->newQuery()
             ->where('status', 'verified')
-            ->where('resident_id', '!=', $currentResidentId)
+            // ->where('resident_id', '!=', $currentResidentId)
             ->with(['resident.user', 'taskCategory', 'stage', 'division']); // Eager load relasi baru
 
         // Logika filter baru
@@ -78,7 +84,8 @@ class OtherSubmissionDataTable extends DataTable
             Column::make('stage_name')->title('Tahap'), // Kolom baru
             Column::make('division_name')->title('Divisi'), // Kolom baru
             Column::make('presentation_date')->title('Tgl Sidang'),
-            Column::computed('file')->title('File')->addClass('text-center'),
+            // Column::computed('file')->title('File')->addClass('text-center'),
+            Column::computed('action')->title('Aksi')->addClass('text-center'),
         ];
     }
 
