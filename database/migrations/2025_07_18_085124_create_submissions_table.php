@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('division_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('supervisor_id')->constrained('users'); // Dosen Pembimbing
             
-            $table->string('title');
+            $table->text('title');
             $table->string('file_path');
             $table->decimal('grade', 5, 2)->nullable();
             $table->date('presentation_date'); // Tanggal maju/sidang
