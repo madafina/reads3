@@ -82,6 +82,17 @@ class EditForm extends Component
             'new_presentation_file' => 'nullable|file|max:10240',
             'new_grade_file' => 'nullable|file|max:5120',
             'new_attendance_file' => 'nullable|file|max:5120',
+        ], [
+            'title.required' => 'Judul ilmiah wajib diisi.',
+            'task_category_id.required' => 'Kategori tugas wajib dipilih.',
+            'supervisor_id.required' => 'Dosen pembimbing wajib dipilih.',
+            'presentation_date.required' => 'Tanggal sidang wajib diisi.',
+            'division_id.required' => 'Divisi wajib dipilih untuk tugas Tahap II.',
+            'newFile.mimes' => 'File utama harus berformat PDF.',
+            'newFile.max' => 'Ukuran file utama maksimal 10MB.',
+            'new_presentation_file.max' => 'Ukuran file presentasi maksimal 10MB.',
+            'new_grade_file.max' => 'Ukuran file nilai maksimal 5MB.',
+            'new_attendance_file.max' => 'Ukuran file presensi maksimal 5MB.',
         ]);
         
         // 2. Hapus properti file dari array agar tidak error saat update model

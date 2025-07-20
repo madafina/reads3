@@ -69,10 +69,20 @@ class CreateForm extends Component
             'presentation_file' => 'nullable|file|max:10240',
             'grade_file' => 'nullable|file|max:5120',
             'attendance_file' => 'nullable|file|max:5120',
+        ], [
+            'title.required' => 'Judul ilmiah wajib diisi.',
+            'task_category_id.required' => 'Kategori tugas wajib dipilih.',
+            'supervisor_id.required' => 'Dosen pembimbing wajib dipilih.',
+            'presentation_date.required' => 'Tanggal sidang wajib diisi.',
+            'file.required' => 'File ilmiah utama wajib diunggah.',
+            'file.mimes' => 'File utama harus berformat PDF.',
+            'file.max' => 'Ukuran file utama maksimal 10MB.',
+            'division_id.required' => 'Divisi wajib dipilih untuk tugas Tahap II.',
+            'presentation_file.max' => 'Ukuran file presentasi maksimal 10MB.',
+            'grade_file.max' => 'Ukuran file nilai maksimal 5MB.',
+            'attendance_file.max' => 'Ukuran file presensi maksimal 5MB.',
         ]);
 
-        // === BAGIAN YANG DIPERBAIKI ===
-        // 1. Siapkan array data dengan kunci yang sesuai dengan kolom database
         $dataToSave = [
             'resident_id' => $this->resident->id,
             'stage_id' => $this->resident->current_stage_id,
@@ -87,7 +97,6 @@ class CreateForm extends Component
             'status' => 'pending',
         ];
 
-        // 2. Proses setiap file dan tambahkan path-nya ke array data
         $dataToSave['file_path'] = $this->file->store('submissions', 'public');
 
         if ($this->presentation_file) {
@@ -100,7 +109,6 @@ class CreateForm extends Component
             $dataToSave['attendance_file_path'] = $this->attendance_file->store('attendances', 'public');
         }
 
-        // 3. Simpan data ke database
         Submission::create($dataToSave);
 
         session()->flash('success', 'Tugas ilmiah berhasil diunggah.');
