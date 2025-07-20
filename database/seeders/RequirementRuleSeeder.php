@@ -36,25 +36,25 @@ class RequirementRuleSeeder extends Seeder
         // =================================================================
         // ATURAN UNTUK TAHAP I
         // =================================================================
-        $ruleTahap1Fisik = RequirementRule::create(['name' => 'Kewajiban Pemeriksaan Fisik Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
+        $ruleTahap1Fisik = RequirementRule::create(['name' => 'Tugas Pemeriksaan Fisik Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
         $ruleTahap1Fisik->taskCategories()->attach($taskPemeriksaanFisik->id);
 
-        $ruleTahap1Sindrom = RequirementRule::create(['name' => 'Kewajiban Sindroma Klinis Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
+        $ruleTahap1Sindrom = RequirementRule::create(['name' => 'Tugas Sindroma Klinis Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 1]);
         $ruleTahap1Sindrom->taskCategories()->attach($taskSindromaKlinis->id);
         
-        $ruleTahap1MiniCx = RequirementRule::create(['name' => 'Kewajiban Mini CX Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 5]);
+        $ruleTahap1MiniCx = RequirementRule::create(['name' => 'Tugas Mini CX Tahap I', 'stage_id' => $tahap1->id, 'required_count' => 5]);
         $ruleTahap1MiniCx->taskCategories()->attach($taskMiniCx->id);
 
         // =================================================================
         // ATURAN STANDAR UNTUK TAHAP II (division_id = null)
         // =================================================================
-        $ruleStdJr = RequirementRule::create(['name' => 'Kewajiban JR Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 3]);
+        $ruleStdJr = RequirementRule::create(['name' => 'Tugas JR Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 3]);
         $ruleStdJr->taskCategories()->attach($taskJr->id);
         
-        $ruleStdLapsusRefrat = RequirementRule::create(['name' => 'Kewajiban Lapsus/Refrat Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
+        $ruleStdLapsusRefrat = RequirementRule::create(['name' => 'Tugas Lapsus/Refrat Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
         $ruleStdLapsusRefrat->taskCategories()->attach([$taskLapsus->id, $taskRefrat->id]); // Kondisi ATAU
         
-        $ruleStdCbd = RequirementRule::create(['name' => 'Kewajiban CBD Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
+        $ruleStdCbd = RequirementRule::create(['name' => 'Tugas CBD Divisi Standar', 'stage_id' => $tahap2->id, 'division_id' => null, 'required_count' => 1]);
         $ruleStdCbd->taskCategories()->attach($taskCbd->id);
 
         // =================================================================
@@ -62,11 +62,11 @@ class RequirementRuleSeeder extends Seeder
         // =================================================================
         
         // Khusus Divisi Paru: Hanya JR 1x
-        $ruleParu = RequirementRule::create(['name' => 'Kewajiban Khusus Divisi Paru (JR)', 'stage_id' => $tahap2->id, 'division_id' => $divisiParu->id, 'required_count' => 1]);
+        $ruleParu = RequirementRule::create(['name' => 'Tugas Khusus Divisi Paru (JR)', 'stage_id' => $tahap2->id, 'division_id' => $divisiParu->id, 'required_count' => 1]);
         $ruleParu->taskCategories()->attach($taskJr->id);
 
         // Khusus Divisi Kardio: Hanya Refrat/Lapsus 1x
-        $ruleKardio = RequirementRule::create(['name' => 'Kewajiban Khusus Divisi Kardio (Refrat/Lapsus)', 'stage_id' => $tahap2->id, 'division_id' => $divisiKardio->id, 'required_count' => 1]);
+        $ruleKardio = RequirementRule::create(['name' => 'Tugas Khusus Divisi Kardio (Refrat/Lapsus)', 'stage_id' => $tahap2->id, 'division_id' => $divisiKardio->id, 'required_count' => 1]);
         $ruleKardio->taskCategories()->attach([$taskLapsus->id, $taskRefrat->id]); // Kondisi ATAU
     }
 }

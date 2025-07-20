@@ -62,6 +62,14 @@ return [
             ]) : [],
         ],
 
+        'mysql_old' => [
+            'driver' => 'mysql',
+            'host' => '127.0.0.1',
+            'database' => 'reads_old',
+            'username' => 'root',
+            'password' => '',
+        ],
+
         'mariadb' => [
             'driver' => 'mariadb',
             'url' => env('DB_URL'),
@@ -147,7 +155,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')).'-database-'),
+            'prefix' => env('REDIS_PREFIX', Str::slug((string) env('APP_NAME', 'laravel')) . '-database-'),
             'persistent' => env('REDIS_PERSISTENT', false),
         ],
 

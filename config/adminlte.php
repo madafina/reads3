@@ -63,8 +63,8 @@ return [
     |
     */
 
-    'logo' => 'READS APPS',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '&nbsp;',
+    'logo_img' => 'dist/img/reads.png',
     'logo_img_class' => 'brand-image',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
@@ -382,12 +382,6 @@ return [
 
         // MENU RESIDEN
 
-        // [
-        //     'text'    => 'Rekap Ilmiah',
-        //     'icon'    => 'fas fa-fw fa-book-open',
-        //     'route'   => 'resident.summary',
-        //     'can'    => 'create-submission',
-        // ],
         [
             'text'    => 'Ilmiah',
             'icon'    => 'fas fa-fw fa-history',
