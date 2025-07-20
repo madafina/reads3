@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::table('submissions', function (Blueprint $table) {
             // Menambahkan kolom-kolom yang hilang dari tabel 'ilmiah' lama
             $table->text('description')->nullable()->after('title');
-            $table->string('seminar_title')->nullable()->after('description');
-            $table->string('presentation_file_path')->nullable()->after('file_path');
-            $table->string('grade_file_path')->nullable()->after('grade');
-            $table->string('attendance_file_path')->nullable()->after('grade_file_path');
+            $table->text('seminar_title')->nullable()->after('description');
+            $table->text('presentation_file_path')->nullable()->after('file_path');
+            $table->text('grade_file_path')->nullable()->after('grade');
+            $table->text('attendance_file_path')->nullable()->after('grade_file_path');
         });
     }
 
