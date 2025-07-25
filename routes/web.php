@@ -105,6 +105,8 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
+
+    Route::resource('residents', AdminResidentController::class);
 });
 
 // Buat grup baru untuk route dosen

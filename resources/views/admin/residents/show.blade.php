@@ -9,21 +9,49 @@
 @section('content')
     {{-- KARTU PROFIL RESIDEN --}}
     <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h4><strong>{{ $resident->user->name }}</strong></h4>
-                            <ul class="list-unstyled">
-                                <li><strong>NIM:</strong> {{ $resident->nim }}</li>
-                                <li><strong>Email:</strong> {{ $resident->user->email }}</li>
-                                <li><strong>Tahap Saat Ini:</strong> {{ $resident->currentStage->name ?? 'Belum Diatur' }}</li>
-                                <li><strong>Angkatan:</strong> {{ $resident->batch ?? '-' }}</li>
-                                <li><strong>Tanggal Masuk:</strong> {{ \Carbon\Carbon::parse($resident->start_date)->translatedFormat('d F Y') }}</li>
-                            </ul>
-                        </div>
+        {{-- Kolom untuk Foto --}}
+        <div class="col-md-4">
+            <div class="card card-primary card-outline">
+                <div class="card-body box-profile text-center">
+                    <div class="text-center mb-3">
+                        @if ($resident->photo)
+                            <img class="profile-user-img img-fluid img-circle"
+                                 src="{{ asset('storage/' . $resident->photo) }}"
+                                 alt="Foto Profil Residen">
+                        @else
+                             <img class="profile-user-img img-fluid img-circle"
+                                 src="https://placehold.co/128x128/6c757d/ffffff?text=No+Photo"
+                                 alt="Foto Profil Residen">
+                        @endif
                     </div>
+
+                    <h3 class="profile-username text-center">{{ $resident->user->name }}</h3>
+                    <p class="text-muted text-center">{{ $resident->nim }}</p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Kolom untuk Detail Teks --}}
+        <div class="col-md-8">
+            <div class="card">
+                
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Email</dt>
+                        <dd class="col-sm-8">{{ $resident->user->email }}</dd>
+
+                        <dt class="col-sm-4">No. Telepon</dt>
+                        <dd class="col-sm-8">{{ $resident->phone_number ?? '-' }}</dd>
+
+                        <dt class="col-sm-4">Tahap Saat Ini</dt>
+                        <dd class="col-sm-8">{{ $resident->currentStage->name ?? 'Belum Diatur' }}</dd>
+                        
+                        <dt class="col-sm-4">Angkatan</dt>
+                        <dd class="col-sm-8">{{ $resident->batch ?? '-' }}</dd>
+                        
+                        <dt class="col-sm-4">Tanggal Masuk</dt>
+                        <dd class="col-sm-8">{{ $resident->start_date ? \Carbon\Carbon::parse($resident->start_date)->translatedFormat('d F Y') : '-' }}</dd>
+                    </dl>
                 </div>
             </div>
         </div>

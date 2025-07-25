@@ -20,7 +20,10 @@ class LecturerDataTable extends DataTable
             ->addIndexColumn()
             ->addColumn('action', function ($row) {
                 // Mengarahkan ke route 'admin.lecturers.show' dengan parameter ID user
-                return '<a href="' . route('admin.lecturers.show', $row->id) . '" class="btn btn-info btn-sm">Lihat Detail</a>';
+                $detail = '<a href="' . route('admin.lecturers.show', $row->id) . '" class="btn btn-info btn-sm">Lihat</a>';
+                $edit = '<a href="'.route('admin.lecturers.edit', $row->id).'" class="btn btn-warning btn-sm">Edit</a>';
+
+                return $detail . ' ' . $edit;
             })
             ->setRowId('id');
     }

@@ -9,7 +9,9 @@ use App\Models\Resident;
 use App\Models\Submission; 
 use Yajra\DataTables\Facades\DataTables;
 use Carbon\Carbon;
-use App\Models\Stage; 
+use App\Models\Stage;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class ResidentController extends Controller
 {
@@ -22,10 +24,13 @@ class ResidentController extends Controller
         return $dataTable->render('admin.residents.index', compact('stages'));
     }
 
-    // METHOD 1: UNTUK MENAMPILKAN HALAMAN UTAMA
+    /**
+     * Menampilkan detail seorang residen.
+     */
     public function show(Resident $resident)
     {
-        // Method ini hanya mengirim data residen ke view
+        // Eager load relasi untuk ditampilkan di view
+        $resident->load('user', 'currentStage', 'supervisorHistory');
         return view('admin.residents.show', compact('resident'));
     }
 
@@ -52,5 +57,65 @@ class ResidentController extends Controller
                 ->rawColumns(['status', 'file'])
                 ->make(true);
         }
+    }
+    /**
+     * Menampilkan form untuk mengedit data residen.
+     */
+    public function edit(Resident $resident)
+    {
+        $stages = Stage::orderBy('order')->get();
+        $lecturers = User::role('Dosen')->orderBy('name')->get();
+        
+        // Eager load relasi untuk efisiensi
+        $resident->load('supervisorHistory');
+
+        // Ambil ID pembimbing yang aktif saat ini
+        $currentSupervisorId = $resident->currentSupervisor()->first()->id ?? null;
+
+        return view('admin.residents.edit', compact('resident', 'stages', 'lecturers', 'currentSupervisorId'));
+    }
+
+    public function update(Request $request, Resident $resident)
+    {
+        $user = $resident->user;
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'nim' => 'required|string|max:255|unique:residents,nim,' . $resident->id,
+            'current_stage_id' => 'required|exists:stages,id',
+            'supervisor_id' => 'nullable|exists:users,id', // ID pembimbing yang baru
+        ]);
+
+        DB::transaction(function () use ($request, $resident, $user) {
+            // Update data dasar user dan residen
+            $user->update($request->only('name', 'email'));
+            $resident->update($request->only('nim', 'current_stage_id'));
+
+            // Logika untuk mengganti pembimbing
+            $newSupervisorId = $request->input('supervisor_id');
+            $currentSupervisor = $resident->currentSupervisor()->first();
+
+            // Cek jika pembimbing diubah
+            if ($newSupervisorId != ($currentSupervisor->id ?? null)) {
+                // 1. Nonaktifkan pembimbing lama (jika ada)
+                if ($currentSupervisor) {
+                    $resident->supervisorHistory()->updateExistingPivot($currentSupervisor->id, [
+                        'end_date' => now(),
+                        'status' => 'inactive',
+                    ]);
+                }
+
+                // 2. Tambahkan pembimbing baru (jika dipilih)
+                if ($newSupervisorId) {
+                    $resident->supervisorHistory()->attach($newSupervisorId, [
+                        'start_date' => now(),
+                        'status' => 'active',
+                    ]);
+                }
+            }
+        });
+
+        return redirect()->route('admin.residents.index')->with('success', 'Data residen berhasil diperbarui.');
     }
 }

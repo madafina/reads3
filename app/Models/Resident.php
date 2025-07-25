@@ -40,4 +40,25 @@ class Resident extends Model
             ->withPivot('start_date', 'end_date', 'status')
             ->withTimestamps();
     }
+
+    /**
+     * Relasi untuk mengambil SEMUA riwayat pembimbing.
+     */
+    public function supervisorHistory()
+    {
+        return $this->belongsToMany(User::class, 'resident_supervisor_history', 'resident_id', 'supervisor_id')
+            ->withPivot('start_date', 'end_date', 'status')
+            ->withTimestamps()
+            ->orderBy('start_date', 'desc');
+    }
+
+    /**
+     * Relasi untuk mengambil HANYA pembimbing yang aktif saat ini.
+     */
+    public function currentSupervisor()
+    {
+        return $this->belongsToMany(User::class, 'resident_supervisor_history', 'resident_id', 'supervisor_id')
+            ->wherePivot('status', 'active')
+            ->withTimestamps();
+    }
 }

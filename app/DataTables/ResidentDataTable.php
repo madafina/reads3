@@ -23,9 +23,10 @@ class ResidentDataTable extends DataTable
             ->addColumn('email', fn($row) => $row->user->email ?? 'N/A')
             ->addColumn('current_stage', fn($row) => $row->currentStage->name ?? 'Belum Diatur')
             ->editColumn('start_date', fn($row) => Carbon::parse($row->start_date)->translatedFormat('d F Y'))
-            ->addColumn('action', function ($row) {
-                // Mengarahkan ke route 'admin.residents.show' dengan parameter ID residen
-                return '<a href="' . route('admin.residents.show', $row->id) . '" class="btn btn-info btn-sm">Lihat Profil</a>';
+           ->addColumn('action', function($row){
+                $detailBtn = '<a href="'.route('admin.residents.show', $row->id).'" class="btn btn-info btn-sm">Detail</a>';
+                $editBtn = '<a href="'.route('admin.residents.edit', $row->id).'" class="btn btn-warning btn-sm ml-1">Edit</a>';
+                return $detailBtn . ' ' . $editBtn;
             })
             ->setRowId('id');
     }

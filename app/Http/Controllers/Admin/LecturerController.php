@@ -45,4 +45,25 @@ class LecturerController extends Controller
                 ->make(true);
         }
     }
+
+    public function edit(User $lecturer)
+    {
+        // Pastikan user yang diedit adalah dosen
+        if (!$lecturer->hasRole('Dosen')) {
+            abort(404);
+        }
+        return view('admin.lecturers.edit', compact('lecturer'));
+    }
+
+    public function update(Request $request, User $lecturer)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $lecturer->id,
+        ]);
+
+        $lecturer->update($request->all());
+
+        return redirect()->route('admin.lecturers.index')->with('success', 'Data dosen berhasil diperbarui.');
+    }
 }   
