@@ -80,17 +80,27 @@ Route::middleware('auth')->group(function () {
         ->name('submissions.edit');
 
     Route::get('/submissions/{submission}', [SubmissionController::class, 'show'])->name('submissions.show');
+
+
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
+
+    Route::get('residents/import', [AdminResidentController::class, 'showImportForm'])->name('residents.import.form');
+    Route::post('residents/import', [AdminResidentController::class, 'import'])->name('residents.import');    
+
+
     Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
     Route::get('/submissions/verify', [AdminSubmissionController::class, 'index'])->name('submissions.verify.index');
 
     Route::put('/submissions/{submission}/verify', [App\Http\Controllers\Admin\SubmissionController::class, 'verify'])->name('submissions.verify');
     Route::put('/submissions/{submission}/reject', [App\Http\Controllers\Admin\SubmissionController::class, 'reject'])->name('submissions.reject');
 
-    Route::resource('lecturers', AdminLecturerController::class);
     Route::get('/lecturers/{lecturer}/advisees', [AdminLecturerController::class, 'advisees'])->name('lecturers.advisees');
+
+    // Di dalam grup route admin Anda
+    Route::get('lecturers/import', [AdminLecturerController::class, 'showImportForm'])->name('lecturers.import.form');
+    Route::post('lecturers/import', [AdminLecturerController::class, 'import'])->name('lecturers.import');
 
     Route::resource('requirement-rules', AdminRequirementRuleController::class);
 
@@ -103,16 +113,18 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('promotions', [AdminPromotionController::class, 'index'])->name('promotions.index');
     Route::post('promotions/{resident}/promote', [AdminPromotionController::class, 'promote'])->name('promotions.promote');
 
+        Route::resource('lecturers', AdminLecturerController::class);
+
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
-
-    Route::resource('residents', AdminResidentController::class);
+    Route::put('residents/{resident}/update-supervisor', [AdminResidentController::class, 'updateSupervisor'])->name('residents.updateSupervisor');
 });
 
 // Buat grup baru untuk route dosen
 Route::middleware(['auth', 'role:Dosen|Admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/submissions/all', [AdminSubmissionController::class, 'all'])->name('submissions.all');
     Route::resource('residents', AdminResidentController::class);
+
     Route::get('/residents/{resident}/submissions', [AdminResidentController::class, 'submissions'])->name('residents.submissions');
     Route::get('/submissions/{submission}', [AdminSubmissionController::class, 'show'])->name('submissions.show');
 });

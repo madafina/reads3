@@ -17,7 +17,7 @@
                         @if ($resident->photo)
                             <img class="profile-user-img img-fluid img-circle"
                                  src="{{ asset('storage/' . $resident->photo) }}"
-                                 alt="Foto Profil Residen">
+                                 alt="Foto Profil Residen" style="width: 128px; height: 128px; object-fit: cover;">
                         @else
                              <img class="profile-user-img img-fluid img-circle"
                                  src="https://placehold.co/128x128/6c757d/ffffff?text=No+Photo"
@@ -34,7 +34,9 @@
         {{-- Kolom untuk Detail Teks --}}
         <div class="col-md-8">
             <div class="card">
-                
+                <div class="card-header">
+                    <h3 class="card-title">Informasi Detail</h3>
+                </div>
                 <div class="card-body">
                     <dl class="row">
                         <dt class="col-sm-4">Email</dt>
@@ -45,6 +47,10 @@
 
                         <dt class="col-sm-4">Tahap Saat Ini</dt>
                         <dd class="col-sm-8">{{ $resident->currentStage->name ?? 'Belum Diatur' }}</dd>
+
+                        {{-- === BAGIAN YANG DITAMBAHKAN === --}}
+                        <dt class="col-sm-4">Dosen Pembimbing Aktif</dt>
+                        <dd class="col-sm-8">{{ $resident->currentSupervisor()->first()->name ?? 'Belum Diatur' }}</dd>
                         
                         <dt class="col-sm-4">Angkatan</dt>
                         <dd class="col-sm-8">{{ $resident->batch ?? '-' }}</dd>

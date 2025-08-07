@@ -355,16 +355,27 @@ return [
                     'can'  => 'manage-users',
                 ],
                 [
+                    'text' => 'Impor Residen',
+                    'route'  => 'admin.residents.import.form',
+                    'icon' => 'fas fa-fw fa-file-import',
+                ],
+                [
                     'text' => 'Dosen',
                     'route'  => 'admin.lecturers.index',
                     'icon' => 'fas fa-fw fa-user-tie',
                     'can'  => 'manage-users',
+                ],
+                 [
+                    'text' => 'Impor Dosen',
+                    'route'  => 'admin.lecturers.import.form',
+                    'icon' => 'fas fa-fw fa-file-import',
                 ],
                 [
                     'text' => 'Semua Pengguna',
                     'route'  => 'admin.users.index',
                     'icon' => 'fas fa-fw fa-users',
                 ],
+               
             ],
         ],
 

@@ -1,9 +1,9 @@
 @extends('adminlte::page')
-@section('plugins.Select2', true)
+
 @section('title', 'Edit Residen')
 
 @section('content_header')
-    <h1 class="m-0 text-dark">Edit Data Residen: {{ $resident->user->name }}</h1>
+    <h1 class="m-0 text-dark">Edit Data Residen</h1>
 @stop
 
 @push('css')
@@ -99,6 +99,7 @@
                             </select>
                             @error('supervisor_id') <span class="text-danger">{{ $message }}</span> @enderror
                         </div>
+
                         <div class="form-group">
                             <label for="reason">Alasan Pergantian</label>
                             <textarea name="reason" class="form-control @error('reason') is-invalid @enderror" rows="3" placeholder="Masukkan alasan jika mengganti pembimbing...">{{ old('reason') }}</textarea>
@@ -130,7 +131,7 @@
                                 </small>
                                 @if($history->pivot->reason)
                                     <p class="mb-0 mt-2 p-2 bg-light border rounded">
-                                        <small><strong>Catatan:</strong> {{ $history->pivot->reason }}</small>
+                                        <small><strong>Alasan:</strong> {{ $history->pivot->reason }}</small>
                                     </p>
                                 @endif
                             </li>

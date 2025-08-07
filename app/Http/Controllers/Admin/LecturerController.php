@@ -8,6 +8,9 @@ use App\Models\User;
 use App\Models\Resident; 
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables; 
+use App\Imports\LecturersImport; // Import kelas baru
+use Maatwebsite\Excel\Facades\Excel; // Import facade Excel
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class LecturerController extends Controller
 {
@@ -65,5 +68,32 @@ class LecturerController extends Controller
         $lecturer->update($request->all());
 
         return redirect()->route('admin.lecturers.index')->with('success', 'Data dosen berhasil diperbarui.');
+    }
+
+    /**
+     * Menampilkan form untuk impor data dosen.
+     */
+    public function showImportForm()
+    {
+        return view('admin.lecturers.import');
+    }
+
+    /**
+     * Memproses file Excel yang diunggah.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new LecturersImport, $request->file('file'));
+        } catch (ValidationException $e) {
+            $failures = $e->failures();
+            return redirect()->route('admin.lecturers.import.form')->with('import_errors', $failures);
+        }
+
+        return redirect()->route('admin.lecturers.index')->with('success', 'Data dosen berhasil diimpor.');
     }
 }   

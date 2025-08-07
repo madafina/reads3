@@ -17,7 +17,7 @@
             @endif
             <div class="card">
                 <div class="card-body">
-                    <p>Dari halaman ini, Anda dapat mereset password pengguna kembali ke default ("password").</p>
+                    <p>Dari halaman ini, Anda dapat mereset password pengguna kembali ke default ("123456").</p>
                     {{ $dataTable->table() }}
                 </div>
             </div>

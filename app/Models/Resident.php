@@ -47,9 +47,9 @@ class Resident extends Model
     public function supervisorHistory()
     {
         return $this->belongsToMany(User::class, 'resident_supervisor_history', 'resident_id', 'supervisor_id')
-            ->withPivot('start_date', 'end_date', 'status')
+            ->withPivot('start_date', 'end_date', 'status', 'reason', 'id') // Tambahkan 'id' agar bisa diurutkan
             ->withTimestamps()
-            ->orderBy('start_date', 'desc');
+            ->orderByPivot('id', 'desc'); // Urutkan berdasarkan ID pivot secara descending
     }
 
     /**
@@ -61,4 +61,5 @@ class Resident extends Model
             ->wherePivot('status', 'active')
             ->withTimestamps();
     }
+    
 }

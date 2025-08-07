@@ -5,7 +5,9 @@
 @section('content_header')
     <div class="d-flex justify-content-between">
         <h1 class="m-0 text-dark">Manajemen Residen</h1>
-        <a href="#" class="btn btn-primary">Tambah Residen</a>
+        <div>
+            <a href="{{ route('admin.residents.import.form') }}" class="btn btn-success">Impor Residen</a>
+        </div>
     </div>
 @stop
 

@@ -30,7 +30,7 @@ class UserController extends Controller
 
         // Update password menjadi 'password' (atau nilai default lain yang Anda inginkan)
         $user->update([
-            'password' => Hash::make('password')
+            'password' => Hash::make('123456'), // Ganti dengan nilai default yang diinginkan
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Password untuk pengguna ' . $user->name . ' berhasil direset menjadi "password".');

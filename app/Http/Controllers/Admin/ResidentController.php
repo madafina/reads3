@@ -12,6 +12,9 @@ use Carbon\Carbon;
 use App\Models\Stage;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Imports\ResidentsImport; // Import kelas baru
+use Maatwebsite\Excel\Facades\Excel; // Import facade Excel
+use Maatwebsite\Excel\Validators\ValidationException;
 
 class ResidentController extends Controller
 {
@@ -58,18 +61,12 @@ class ResidentController extends Controller
                 ->make(true);
         }
     }
-    /**
-     * Menampilkan form untuk mengedit data residen.
-     */
+  
     public function edit(Resident $resident)
     {
         $stages = Stage::orderBy('order')->get();
         $lecturers = User::role('Dosen')->orderBy('name')->get();
-        
-        // Eager load relasi untuk efisiensi
         $resident->load('supervisorHistory');
-
-        // Ambil ID pembimbing yang aktif saat ini
         $currentSupervisorId = $resident->currentSupervisor()->first()->id ?? null;
 
         return view('admin.residents.edit', compact('resident', 'stages', 'lecturers', 'currentSupervisorId'));
@@ -84,38 +81,71 @@ class ResidentController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'nim' => 'required|string|max:255|unique:residents,nim,' . $resident->id,
             'current_stage_id' => 'required|exists:stages,id',
-            'supervisor_id' => 'nullable|exists:users,id', // ID pembimbing yang baru
         ]);
 
-        DB::transaction(function () use ($request, $resident, $user) {
-            // Update data dasar user dan residen
-            $user->update($request->only('name', 'email'));
-            $resident->update($request->only('nim', 'current_stage_id'));
+        $user->update($request->only('name', 'email'));
+        $resident->update($request->only('nim', 'current_stage_id'));
 
-            // Logika untuk mengganti pembimbing
+        return redirect()->back()->with('success', 'Profil dasar residen berhasil diperbarui.');
+    }
+
+
+    /**
+     * Memperbarui dosen pembimbing residen.
+     */
+    public function updateSupervisor(Request $request, Resident $resident)
+    {
+        $request->validate([
+            'supervisor_id' => 'nullable|exists:users,id',
+            'reason' => 'nullable|string',
+        ]);
+
+        DB::transaction(function () use ($request, $resident) {
             $newSupervisorId = $request->input('supervisor_id');
             $currentSupervisor = $resident->currentSupervisor()->first();
 
-            // Cek jika pembimbing diubah
             if ($newSupervisorId != ($currentSupervisor->id ?? null)) {
-                // 1. Nonaktifkan pembimbing lama (jika ada)
                 if ($currentSupervisor) {
                     $resident->supervisorHistory()->updateExistingPivot($currentSupervisor->id, [
                         'end_date' => now(),
                         'status' => 'inactive',
                     ]);
                 }
-
-                // 2. Tambahkan pembimbing baru (jika dipilih)
                 if ($newSupervisorId) {
                     $resident->supervisorHistory()->attach($newSupervisorId, [
                         'start_date' => now(),
                         'status' => 'active',
+                        'reason' => $request->reason,
                     ]);
                 }
             }
         });
 
-        return redirect()->route('admin.residents.index')->with('success', 'Data residen berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Dosen pembimbing berhasil diperbarui.');
+    }
+
+    public function showImportForm()
+    {
+        return view('admin.residents.import');
+    }
+
+    /**
+     * Memproses file Excel yang diunggah.
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx,xls',
+        ]);
+
+        try {
+            Excel::import(new ResidentsImport, $request->file('file'));
+        } catch (ValidationException $e) {
+            // Tangkap error validasi dari file Excel dan kirim kembali ke view
+            $failures = $e->failures();
+            return redirect()->route('admin.residents.import.form')->with('import_errors', $failures);
+        }
+
+        return redirect()->route('admin.residents.index')->with('success', 'Data residen berhasil diimpor.');
     }
 }

@@ -26,7 +26,7 @@ class UserDataTable extends DataTable
                     <form action="'.route('admin.users.reset-password', $row->id).'" method="POST">
                         '.csrf_field().'
                         '.method_field("POST").'
-                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Anda yakin ingin mereset password pengguna ini menjadi `password`?\')">
+                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Anda yakin ingin mereset password pengguna ini menjadi `123456`?\')">
                             Reset Password
                         </button>
                     </form>
