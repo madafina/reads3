@@ -113,11 +113,14 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::get('promotions', [AdminPromotionController::class, 'index'])->name('promotions.index');
     Route::post('promotions/{resident}/promote', [AdminPromotionController::class, 'promote'])->name('promotions.promote');
 
-        Route::resource('lecturers', AdminLecturerController::class);
+    Route::resource('lecturers', AdminLecturerController::class);
 
     Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
     Route::put('residents/{resident}/update-supervisor', [AdminResidentController::class, 'updateSupervisor'])->name('residents.updateSupervisor');
+
+    Route::get('users/export', [AdminUserController::class, 'exportExcel'])->name('users.export');
+    
 });
 
 // Buat grup baru untuk route dosen

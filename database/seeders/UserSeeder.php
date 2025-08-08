@@ -18,7 +18,7 @@ class UserSeeder extends Seeder
             ['email' => 'admin@ppdsinternasolo.id'],
             [
                 'name' => 'Admin PPDS',
-                'password' => Hash::make('password'),
+                'password' => Hash::make('Intermoska123'),
             ]
         );
         $admin->assignRole('Admin');

@@ -17,37 +17,38 @@ class UserDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->addColumn('role', fn($row) => $row->getRoleNames()->implode(', '))
-            ->addColumn('action', function($row) {
-                // Admin tidak bisa mereset passwordnya sendiri dari halaman ini
+            ->addColumn('action', function ($row) {
                 if ($row->id === auth()->id()) {
                     return 'Tidak ada aksi';
                 }
-                $form = '
-                    <form action="'.route('admin.users.reset-password', $row->id).'" method="POST">
-                        '.csrf_field().'
-                        '.method_field("POST").'
-                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Anda yakin ingin mereset password pengguna ini menjadi `123456`?\')">
+                return '
+                    <form action="' . route('admin.users.reset-password', $row->id) . '" method="POST">
+                        ' . csrf_field() . '
+                        <button type="submit" class="btn btn-warning btn-sm" 
+                            onclick="return confirm(\'Anda yakin ingin mereset password pengguna ini menjadi `123456`?\')">
                             Reset Password
                         </button>
                     </form>
                 ';
-                return $form;
             })
             ->rawColumns(['action']);
     }
 
     public function query(User $model): QueryBuilder
     {
+        // Query utama — ini juga yang dipakai saat export
         return $model->newQuery()->with('roles');
     }
 
     public function html(): HtmlBuilder
     {
         return $this->builder()
-                    ->setTableId('user-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(1);
+            ->setTableId('user-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(1)
+            ->processing(true)     
+            ->serverSide(true) ;
     }
 
     public function getColumns(): array
@@ -58,10 +59,10 @@ class UserDataTable extends DataTable
             Column::make('email'),
             Column::make('role')->title('Peran')->orderable(false)->searchable(false),
             Column::computed('action')
-                  ->exportable(false)
-                  ->printable(false)
-                  ->width(160)
-                  ->addClass('text-center'),
+                ->exportable(false)
+                ->printable(false)
+                ->width(160)
+                ->addClass('text-center'),
         ];
     }
 

@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use App\Exports\UsersExport; 
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -34,5 +36,10 @@ class UserController extends Controller
         ]);
 
         return redirect()->route('admin.users.index')->with('success', 'Password untuk pengguna ' . $user->name . ' berhasil direset menjadi "password".');
+    }
+
+    public function exportExcel()
+    {
+        return Excel::download(new UsersExport, 'daftar-pengguna.xlsx');
     }
 }

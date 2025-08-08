@@ -11,6 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Schema;
 
 class MigrateOldData extends Command
@@ -120,7 +121,7 @@ class MigrateOldData extends Command
             $newUser = User::create([
                 'name' => $name,
                 'email' => $oldUser->email,
-                'password' => $oldUser->password, // Langsung salin hash bcrypt
+                'password' => Hash::make('123456'), // Langsung salin hash bcrypt
                 'created_at' => $this->sanitizeDate($oldUser->created_at),
                 'updated_at' => $this->sanitizeDate($oldUser->updated_at),
             ]);
