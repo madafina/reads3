@@ -115,7 +115,7 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     Route::resource('lecturers', AdminLecturerController::class);
 
-    Route::get('users', [AdminUserController::class, 'index'])->name('users.index');
+    Route::resource('users', AdminUserController::class)->except(['create', 'store', 'show', 'edit', 'update']);
     Route::post('users/{user}/reset-password', [AdminUserController::class, 'resetPassword'])->name('users.reset-password');
     Route::put('residents/{resident}/update-supervisor', [AdminResidentController::class, 'updateSupervisor'])->name('residents.updateSupervisor');
 

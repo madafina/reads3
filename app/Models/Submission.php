@@ -21,7 +21,7 @@ class Submission extends Model
 
     public function resident()
     {
-        return $this->belongsTo(Resident::class);
+        return $this->belongsTo(Resident::class, 'resident_id')->withTrashed();
     }
 
     public function taskCategory()
@@ -40,11 +40,11 @@ class Submission extends Model
 
     public function supervisor() // Dosen Pembimbing
     {
-        return $this->belongsTo(User::class, 'supervisor_id');
+        return $this->belongsTo(User::class, 'supervisor_id')->withTrashed();
     }
 
     public function verifier() // Admin yang memverifikasi
     {
-        return $this->belongsTo(User::class, 'verified_by');
-    }
+        return $this->belongsTo(User::class, 'verified_by')->withTrashed();
+    }    
 }

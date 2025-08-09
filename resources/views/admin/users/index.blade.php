@@ -12,6 +12,34 @@
 @stop
 
 @section('content')
+
+{{-- Card untuk Filter --}}
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Filter Data</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="role_filter">Filter Berdasarkan Peran</label>
+                        <select id="role_filter" class="form-control">
+                            <option value="">-- Semua Peran --</option>
+                            {{-- Loop ini membutuhkan variabel $roles dari controller --}}
+                            @foreach ($roles as $role)
+                                <option value="{{ $role->name }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4 d-flex align-items-end">
+                    <div class="form-group">
+                        <button id="filter-btn" class="btn btn-primary">Terapkan Filter</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row">
         <div class="col-12">
             @if (session('success'))
@@ -46,4 +74,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.2.7/vfs_fonts.js"></script>
 
     {{ $dataTable->scripts(attributes: ['type' => 'module']) }}
+
+     <script>
+        // Gunakan document.ready dari jQuery untuk memastikan semua skrip, termasuk dari Yajra, sudah dimuat
+        $(function() {
+            $('#filter-btn').on('click', function(e) {
+                e.preventDefault();
+                // Dapatkan instance DataTable di dalam event handler untuk memastikan tabel sudah ada
+                var table = $('#user-table').DataTable();
+                table.ajax.url(
+                    "{{ route('admin.users.index') }}?role=" + $('#role_filter').val()
+                ).load();
+            });
+        });
+    </script>
 @endpush

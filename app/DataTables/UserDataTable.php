@@ -17,27 +17,28 @@ class UserDataTable extends DataTable
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->addColumn('role', fn($row) => $row->getRoleNames()->implode(', '))
-            ->addColumn('action', function ($row) {
+            ->addColumn('action', function($row) {
                 if ($row->id === auth()->id()) {
                     return 'Tidak ada aksi';
                 }
-                return '
-                    <form action="' . route('admin.users.reset-password', $row->id) . '" method="POST">
-                        ' . csrf_field() . '
-                        <button type="submit" class="btn btn-warning btn-sm" 
-                            onclick="return confirm(\'Anda yakin ingin mereset password pengguna ini menjadi `123456`?\')">
-                            Reset Password
-                        </button>
-                    </form>
-                ';
+                $resetBtn = '<form action="'.route('admin.users.reset-password', $row->id).'" method="POST" class="d-inline mr-1">'.csrf_field().method_field("POST").'<button type="submit" class="btn btn-warning btn-sm" onclick="return confirm(\'Reset password pengguna ini menjadi `123456`?\')">Reset Pass</button></form>';
+                $deleteForm = '<form action="'.route('admin.users.destroy', $row->id).'" method="POST" class="d-inline">'.csrf_field().method_field("DELETE").'<button type="submit" class="btn btn-danger btn-sm" onclick="return confirm(\'Anda yakin ingin menghapus pengguna ini?\')">Hapus</button></form>';
+                return $resetBtn . $deleteForm;
             })
             ->rawColumns(['action']);
     }
 
     public function query(User $model): QueryBuilder
     {
-        // Query utama — ini juga yang dipakai saat export
-        return $model->newQuery()->with('roles');
+        $query = $model->newQuery()->with('roles');
+
+        // === BAGIAN YANG DIPERBARUI ===
+        // Terapkan filter jika ada input dari request
+        if ($role = $this->request()->get('role')) {
+            $query->role($role);
+        }
+
+        return $query;
     }
 
     public function html(): HtmlBuilder
