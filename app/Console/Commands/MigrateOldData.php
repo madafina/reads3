@@ -11,7 +11,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash; // 1. Pastikan Hash facade di-import
 use Illuminate\Support\Facades\Schema;
 
 class MigrateOldData extends Command
@@ -31,7 +31,7 @@ class MigrateOldData extends Command
 
         $this->info('Memulai migrasi data...');
 
-        // 1. Kosongkan tabel target di database baru untuk menghindari duplikasi
+        // Kosongkan tabel target di database baru untuk menghindari duplikasi
         Schema::disableForeignKeyConstraints();
         User::truncate();
         Resident::truncate();
@@ -40,10 +40,8 @@ class MigrateOldData extends Command
         DB::table('resident_stage')->truncate();
         Schema::enableForeignKeyConstraints();
 
-        // 2. Bangun peta untuk data master (kategori, divisi, tahap)
         $this->buildMasterDataMaps();
 
-        // 3. Jalankan migrasi dalam sebuah transaksi agar aman
         DB::transaction(function () {
             $this->migrateUsersAndProfiles();
             $this->migrateSubmissions();
@@ -54,14 +52,10 @@ class MigrateOldData extends Command
         $this->warn('PENTING: Jalankan `php artisan storage:link` jika Anda belum melakukannya.');
     }
 
-    /**
-     * Membuat peta (array asosiatif) dari ID lama ke ID baru untuk data master.
-     */
     private function buildMasterDataMaps()
     {
         $this->line('Membangun peta data master...');
         
-        // Peta Kategori
         $oldCategories = DB::connection('mysql_old')->table('kategori_ilmiah')->get();
         foreach ($oldCategories as $oldCat) {
             $newCat = TaskCategory::where('name', 'like', trim($oldCat->kategori).'%')->first();
@@ -70,7 +64,6 @@ class MigrateOldData extends Command
             }
         }
 
-        // Peta Divisi
         $oldDivisions = DB::connection('mysql_old')->table('divisi')->get();
         foreach ($oldDivisions as $oldDiv) {
             $newDiv = Division::where('name', 'like', $oldDiv->divisi.'%')->first();
@@ -79,19 +72,15 @@ class MigrateOldData extends Command
             }
         }
 
-        // Peta Tahap (disesuaikan dengan struktur baru)
         $this->stageMap = [
             1 => Stage::where('name', 'Tahap I')->first()->id,
-            2 => Stage::where('name', 'Tahap II')->first()->id, // 2a
-            3 => Stage::where('name', 'Tahap II')->first()->id, // 2b
+            2 => Stage::where('name', 'Tahap II')->first()->id,
+            3 => Stage::where('name', 'Tahap II')->first()->id,
             4 => Stage::where('name', 'Tahap III')->first()->id,
             5 => Stage::where('name', 'Tesis')->first()->id,
         ];
     }
 
-    /**
-     * Memigrasikan data dari ci_users, residen, dan dosen.
-     */
     private function migrateUsersAndProfiles()
     {
         $this->line('Memigrasikan pengguna, residen, dan dosen...');
@@ -99,7 +88,6 @@ class MigrateOldData extends Command
         $progressBar = $this->output->createProgressBar(count($oldUsers));
 
         foreach ($oldUsers as $oldUser) {
-            // Lewati jika email duplikat
             if (User::where('email', $oldUser->email)->exists()) {
                 $this->warn(" Melewati pengguna dengan email duplikat: {$oldUser->email}");
                 $progressBar->advance();
@@ -108,20 +96,22 @@ class MigrateOldData extends Command
 
             $oldProfile = null;
             $name = $oldUser->username;
-            if ($oldUser->role == 2) { // Dosen
+            if ($oldUser->role == 2) {
                 $oldProfile = DB::connection('mysql_old')->table('dosen')->where('user_id', $oldUser->id)->first();
                 if ($oldProfile) $name = $oldProfile->nama_lengkap;
             }
-            if ($oldUser->role == 3) { // Residen
+            if ($oldUser->role == 3) {
                 $oldProfile = DB::connection('mysql_old')->table('residen')->where('user_id', $oldUser->id)->first();
                 if ($oldProfile) $name = $oldProfile->nama_lengkap;
             }
-            if (empty($name)) $name = $oldUser->email; // Fallback jika nama kosong
+            if (empty($name)) $name = $oldUser->email;
 
             $newUser = User::create([
                 'name' => $name,
                 'email' => $oldUser->email,
-                'password' => Hash::make('123456'), // Langsung salin hash bcrypt
+                // === PERUBAHAN DI SINI ===
+                // Mengganti password lama dengan password default yang sudah di-hash
+                'password' => Hash::make('123456'),
                 'created_at' => $this->sanitizeDate($oldUser->created_at),
                 'updated_at' => $this->sanitizeDate($oldUser->updated_at),
             ]);
@@ -154,9 +144,6 @@ class MigrateOldData extends Command
         $this->newLine(2);
     }
 
-    /**
-     * Memigrasikan data tugas ilmiah.
-     */
     private function migrateSubmissions()
     {
         $this->line('Memigrasikan tugas ilmiah...');
@@ -201,9 +188,6 @@ class MigrateOldData extends Command
         $this->newLine(2);
     }
 
-    /**
-     * Memigrasikan riwayat tahap residen.
-     */
     private function migrateStageHistory()
     {
         $this->line('Memigrasikan riwayat tahap residen...');
@@ -235,9 +219,6 @@ class MigrateOldData extends Command
         $this->newLine(2);
     }
 
-    /**
-     * Membersihkan nilai tanggal yang tidak valid.
-     */
     private function sanitizeDate($dateString)
     {
         if (empty($dateString) || $dateString === '0000-00-00 00:00:00') {
@@ -250,9 +231,6 @@ class MigrateOldData extends Command
         }
     }
 
-    /**
-     * Membersihkan path file lama.
-     */
     private function transformOldPath($oldPath)
     {
         if (empty($oldPath)) {
