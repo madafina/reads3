@@ -41,7 +41,8 @@ class MigrateOldData extends Command
         $this->buildMasterDataMaps();
 
         DB::transaction(function () {
-            $this->migrateUsersAndProfiles();
+            $this->migrateUsersAndRoles();
+            $this->migrateProfiles();
             $this->migrateSubmissions();
             $this->migrateStageHistory();
         });
@@ -53,7 +54,6 @@ class MigrateOldData extends Command
     private function buildMasterDataMaps()
     {
         $this->line('Membangun peta data master...');
-        
         $oldCategories = DB::connection('mysql_old')->table('kategori_ilmiah')->get();
         foreach ($oldCategories as $oldCat) {
             $newCat = TaskCategory::where('name', 'like', trim($oldCat->kategori).'%')->first();
@@ -75,9 +75,9 @@ class MigrateOldData extends Command
         ];
     }
 
-    private function migrateUsersAndProfiles()
+    private function migrateUsersAndRoles()
     {
-        $this->line('Memigrasikan pengguna, residen, dan dosen...');
+        $this->line('Memigrasikan data login pengguna (ci_users)...');
         $oldUsers = DB::connection('mysql_old')->table('ci_users')->get();
         $progressBar = $this->output->createProgressBar(count($oldUsers));
 
@@ -87,20 +87,8 @@ class MigrateOldData extends Command
                 continue;
             }
 
-            $oldProfile = null;
-            $name = $oldUser->username;
-            if ($oldUser->role == 2) {
-                $oldProfile = DB::connection('mysql_old')->table('dosen')->where('user_id', $oldUser->id)->first();
-                if ($oldProfile) $name = $oldProfile->nama_lengkap;
-            }
-            if ($oldUser->role == 3) {
-                $oldProfile = DB::connection('mysql_old')->table('residen')->where('user_id', $oldUser->id)->first();
-                if ($oldProfile) $name = $oldProfile->nama_lengkap;
-            }
-            if (empty($name)) $name = $oldUser->email;
-
             $newUser = User::create([
-                'name' => $name,
+                'name' => $oldUser->username, // Nama akan diperbarui nanti dari profil
                 'email' => $oldUser->email,
                 'password' => Hash::make('123456'),
                 'created_at' => $this->sanitizeDate($oldUser->created_at),
@@ -109,30 +97,57 @@ class MigrateOldData extends Command
             $this->userMap[$oldUser->id] = $newUser->id;
 
             if ($oldUser->role == 1) $newUser->assignRole('Admin');
-            if ($oldUser->role == 2) {
-                $newUser->assignRole('Dosen');
-                if ($oldProfile) $this->dosenMap[$oldProfile->id] = $newUser->id;
-            }
-            if ($oldUser->role == 3) {
-                $newUser->assignRole('Residen');
-                if ($oldProfile) {
-                    if (empty($oldProfile->nim) || Resident::where('nim', $oldProfile->nim)->exists()) {
-                        $progressBar->advance();
-                        continue;
-                    }
-                    $newResident = Resident::create([
-                        'user_id' => $newUser->id,
-                        'nim' => $oldProfile->nim,
-                        'batch' => $oldProfile->angkatan,
-                        'start_date' => $this->sanitizeDate($oldUser->created_at),
-                    ]);
-                    $this->residentMap[$oldProfile->id] = $newResident->id;
-                }
-            }
+            
             $progressBar->advance();
         }
         $progressBar->finish();
         $this->newLine(2);
+    }
+
+    private function migrateProfiles()
+    {
+        $this->line('Membuat profil dan menetapkan peran Dosen & Residen...');
+        
+        // Proses Dosen
+        $oldLecturers = DB::connection('mysql_old')->table('dosen')->get();
+        foreach($oldLecturers as $oldLecturer) {
+            $newUserId = $this->userMap[$oldLecturer->user_id] ?? null;
+            if (!$newUserId) continue;
+
+            $user = User::find($newUserId);
+            if ($user) {
+                $user->name = $oldLecturer->nama_lengkap;
+                $user->save();
+                $user->assignRole('Dosen');
+                $this->dosenMap[$oldLecturer->id] = $user->id;
+            }
+        }
+
+        // Proses Residen
+        $oldResidents = DB::connection('mysql_old')->table('residen')->get();
+        foreach($oldResidents as $oldResident) {
+            $newUserId = $this->userMap[$oldResident->user_id] ?? null;
+            if (!$newUserId) continue;
+
+            $user = User::find($newUserId);
+            if ($user) {
+                $user->name = $oldResident->nama_lengkap;
+                $user->save();
+                $user->assignRole('Residen');
+
+                if (empty($oldResident->nim) || Resident::where('nim', $oldResident->nim)->exists()) {
+                    continue;
+                }
+
+                $newResident = Resident::create([
+                    'user_id' => $user->id,
+                    'nim' => $oldResident->nim,
+                    'batch' => $oldResident->angkatan,
+                    'start_date' => $this->sanitizeDate($user->created_at),
+                ]);
+                $this->residentMap[$oldResident->id] = $newResident->id;
+            }
+        }
     }
 
     private function migrateSubmissions()
@@ -209,7 +224,6 @@ class MigrateOldData extends Command
         $progressBar->finish();
         $this->newLine(2);
         
-        // === BAGIAN YANG DIPERBARUI ===
         $this->assignDefaultStageForOrphans();
     }
 
@@ -227,7 +241,6 @@ class MigrateOldData extends Command
 
         foreach ($orphanResidents as $resident) {
             $resident->update(['current_stage_id' => $stage1Id]);
-
             $hasHistory = DB::table('resident_stage')->where('resident_id', $resident->id)->exists();
             if (!$hasHistory) {
                 DB::table('resident_stage')->insert([
@@ -245,21 +258,13 @@ class MigrateOldData extends Command
 
     private function sanitizeDate($dateString)
     {
-        if (empty($dateString) || $dateString === '0000-00-00 00:00:00') {
-            return null;
-        }
-        try {
-            return Carbon::parse($dateString);
-        } catch (\Exception $e) {
-            return null;
-        }
+        if (empty($dateString) || $dateString === '0000-00-00 00:00:00') return null;
+        try { return Carbon::parse($dateString); } catch (\Exception $e) { return null; }
     }
 
     private function transformOldPath($oldPath)
     {
-        if (empty($oldPath)) {
-            return null;
-        }
+        if (empty($oldPath)) return null;
         return ltrim($oldPath, './ ');
     }
 }
