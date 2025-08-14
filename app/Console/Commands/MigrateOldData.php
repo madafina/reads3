@@ -19,7 +19,6 @@ class MigrateOldData extends Command
     protected $signature = 'app:migrate-old-data';
     protected $description = 'Migrate data from the old CodeIgniter database to the new Laravel database';
 
-    // Properti untuk menyimpan peta ID dari lama ke baru
     private $userMap = [], $residentMap = [], $dosenMap = [], $categoryMap = [], $divisionMap = [], $stageMap = [];
 
     public function handle()
@@ -31,7 +30,6 @@ class MigrateOldData extends Command
 
         $this->info('Memulai migrasi data...');
 
-        // Kosongkan tabel target di database baru untuk menghindari duplikasi
         Schema::disableForeignKeyConstraints();
         User::truncate();
         Resident::truncate();
@@ -89,7 +87,6 @@ class MigrateOldData extends Command
 
         foreach ($oldUsers as $oldUser) {
             if (User::where('email', $oldUser->email)->exists()) {
-                $this->warn(" Melewati pengguna dengan email duplikat: {$oldUser->email}");
                 $progressBar->advance();
                 continue;
             }
@@ -191,12 +188,15 @@ class MigrateOldData extends Command
         $this->line('Memigrasikan riwayat tahap residen...');
         $oldStageHistory = DB::connection('mysql_old')->table('residen_tahap')->get();
         $progressBar = $this->output->createProgressBar(count($oldStageHistory));
+        $processedResidentIds = [];
 
         foreach($oldStageHistory as $history) {
             $newResidentId = $this->residentMap[$history->id_residen] ?? null;
             $newStageId = $this->stageMap[$history->tahap] ?? null;
 
             if (!$newResidentId || !$newStageId) continue;
+            
+            $processedResidentIds[] = $newResidentId;
 
             DB::table('resident_stage')->insert([
                 'resident_id' => $newResidentId,
@@ -216,26 +216,22 @@ class MigrateOldData extends Command
         $progressBar->finish();
         $this->newLine(2);
         
-        $this->assignDefaultStageForOrphans();
-    }
-
-    private function assignDefaultStageForOrphans()
-    {
+        // === BAGIAN YANG DIPERBARUI ===
         $this->line('Menetapkan tahap default untuk residen yang belum memiliki tahap...');
         $stage1Id = $this->stageMap[1];
+        $allNewResidentIds = array_values($this->residentMap);
+        $orphanResidentIds = array_diff($allNewResidentIds, array_unique($processedResidentIds));
 
-        $orphanResidents = Resident::whereNull('current_stage_id')->get();
-
-        if ($orphanResidents->isEmpty()) {
+        if (empty($orphanResidentIds)) {
             $this->info('Tidak ada residen tanpa tahap yang ditemukan. Langkah ini dilewati.');
             return;
         }
 
-        foreach ($orphanResidents as $resident) {
-            $resident->update(['current_stage_id' => $stage1Id]);
-
-            $hasHistory = DB::table('resident_stage')->where('resident_id', $resident->id)->exists();
-            if (!$hasHistory) {
+        $orphanProgressBar = $this->output->createProgressBar(count($orphanResidentIds));
+        foreach ($orphanResidentIds as $residentId) {
+            $resident = Resident::find($residentId);
+            if ($resident) {
+                $resident->update(['current_stage_id' => $stage1Id]);
                 DB::table('resident_stage')->insert([
                     'resident_id' => $resident->id,
                     'stage_id' => $stage1Id,
@@ -244,9 +240,11 @@ class MigrateOldData extends Command
                     'created_at' => now(),
                     'updated_at' => now(),
                 ]);
-                $this->info("Residen '{$resident->user->name}' telah ditetapkan ke Tahap I.");
             }
+            $orphanProgressBar->advance();
         }
+        $orphanProgressBar->finish();
+        $this->newLine(2);
     }
 
     private function sanitizeDate($dateString)
