@@ -46,7 +46,6 @@ class MigrateOldData extends Command
             $this->migrateUsersAndProfiles();
             $this->migrateSubmissions();
             $this->migrateStageHistory();
-            $this->assignDefaultStageForOrphans(); // <-- LANGKAH BARU DITAMBAHKAN
         });
 
         $this->info('Migrasi data berhasil diselesaikan!');
@@ -216,14 +215,14 @@ class MigrateOldData extends Command
         }
         $progressBar->finish();
         $this->newLine(2);
+        
+        // === BAGIAN YANG DIPERBARUI ===
+        $this->assignDefaultStageForOrphans();
     }
 
-    /**
-     * FUNGSI BARU: Menetapkan tahap default untuk residen yang tidak memiliki riwayat tahap.
-     */
     private function assignDefaultStageForOrphans()
     {
-        $this->line('Menetapkan tahap default untuk residen tanpa tahap...');
+        $this->line('Menetapkan tahap default untuk residen yang belum memiliki tahap...');
         $stage1Id = $this->stageMap[1]; // Mengambil ID Tahap I dari peta
 
         // Cari semua residen yang kolom current_stage_id nya masih NULL
@@ -238,16 +237,19 @@ class MigrateOldData extends Command
             // 1. Update tahap saat ini di tabel residents
             $resident->update(['current_stage_id' => $stage1Id]);
 
-            // 2. Buat catatan riwayat baru di tabel pivot
-            DB::table('resident_stage')->insert([
-                'resident_id' => $resident->id,
-                'stage_id' => $stage1Id,
-                'status' => 'active',
-                'start_date' => $resident->start_date ?? now(),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-            $this->info("Residen '{$resident->user->name}' telah ditetapkan ke Tahap I.");
+            // 2. Buat catatan riwayat baru di tabel pivot, HANYA JIKA BELUM ADA SAMA SEKALI
+            $hasHistory = DB::table('resident_stage')->where('resident_id', $resident->id)->exists();
+            if (!$hasHistory) {
+                DB::table('resident_stage')->insert([
+                    'resident_id' => $resident->id,
+                    'stage_id' => $stage1Id,
+                    'status' => 'active',
+                    'start_date' => $resident->start_date ?? now(),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+                $this->info("Residen '{$resident->user->name}' telah ditetapkan ke Tahap I.");
+            }
         }
     }
 
