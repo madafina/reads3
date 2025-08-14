@@ -6,62 +6,59 @@ use App\Models\Resident;
 use Illuminate\Database\Eloquent\Builder as QueryBuilder;
 use Yajra\DataTables\EloquentDataTable;
 use Yajra\DataTables\Html\Builder as HtmlBuilder;
+use Yajra\DataTables\Html\Button;
 use Yajra\DataTables\Html\Column;
 use Yajra\DataTables\Services\DataTable;
 use Carbon\Carbon;
 
 class ResidentDataTable extends DataTable
 {
-    /**
-     * Build the DataTable class.
-     */
     public function dataTable(QueryBuilder $query): EloquentDataTable
     {
         return (new EloquentDataTable($query))
             ->addIndexColumn()
             ->addColumn('name', fn($row) => $row->user->name ?? 'N/A')
             ->addColumn('email', fn($row) => $row->user->email ?? 'N/A')
-            ->addColumn('current_stage', fn($row) => $row->currentStage->name ?? 'Belum Diatur')
-            ->editColumn('start_date', fn($row) => Carbon::parse($row->start_date)->translatedFormat('d F Y'))
-           ->addColumn('action', function($row){
+            ->addColumn('current_stage', fn($row) => $row->currentStage->name ?? '<span class="badge badge-danger">Belum Diatur</span>')
+            ->editColumn('start_date', fn($row) => $row->start_date ? Carbon::parse($row->start_date)->translatedFormat('d F Y') : '-')
+            ->addColumn('action', function($row){
                 $detailBtn = '<a href="'.route('admin.residents.show', $row->id).'" class="btn btn-info btn-sm">Detail</a>';
                 $editBtn = '<a href="'.route('admin.residents.edit', $row->id).'" class="btn btn-warning btn-sm ml-1">Edit</a>';
                 return $detailBtn . ' ' . $editBtn;
             })
+            ->rawColumns(['current_stage', 'action']) // Izinkan HTML di kolom tahap
             ->setRowId('id');
     }
 
-    /**
-     * Get the query source of dataTable.
-     */
     public function query(Resident $model): QueryBuilder
     {
         $query = $model->newQuery()->with(['user', 'currentStage']);
 
-        // TAMBAHKAN BLOK IF INI UNTUK MENERAPKAN FILTER
+        // === BAGIAN YANG DIPERBARUI ===
         if ($stageId = $this->request()->get('stage_id')) {
-            $query->where('current_stage_id', $stageId);
+            // Jika nilai filter adalah 'none', cari yang tahapnya NULL
+            if ($stageId === 'none') {
+                $query->whereNull('current_stage_id');
+            } else {
+                // Jika tidak, filter berdasarkan ID tahap
+                $query->where('current_stage_id', $stageId);
+            }
         }
 
         return $query;
     }
-
-    /**
-     * Optional method if you want to use the html builder.
-     */
+    
+    // ... sisa method (html, getColumns, filename) tidak berubah ...
     public function html(): HtmlBuilder
     {
         return $this->builder()
-            ->setTableId('resident-table')
-            ->columns($this->getColumns())
-            ->minifiedAjax()
-            ->orderBy(1) // Urutkan berdasarkan nama
-            ->selectStyleSingle();
+                    ->setTableId('resident-table')
+                    ->columns($this->getColumns())
+                    ->minifiedAjax()
+                    ->orderBy(1) // Urutkan berdasarkan nama
+                    ->selectStyleSingle();
     }
 
-    /**
-     * Get the dataTable columns definition.
-     */
     public function getColumns(): array
     {
         return [
@@ -73,16 +70,13 @@ class ResidentDataTable extends DataTable
             Column::make('start_date')->title('Tanggal Masuk'),
             Column::make('email')->title('Email'),
             Column::computed('action')
-                ->exportable(false)
-                ->printable(false)
-                ->width(120)
-                ->addClass('text-center'),
+                  ->exportable(false)
+                  ->printable(false)
+                  ->width(120)
+                  ->addClass('text-center'),
         ];
     }
 
-    /**
-     * Get the filename for export.
-     */
     protected function filename(): string
     {
         return 'Resident_' . date('YmdHis');
