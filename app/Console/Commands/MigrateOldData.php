@@ -216,16 +216,14 @@ class MigrateOldData extends Command
         $progressBar->finish();
         $this->newLine(2);
         
-        // === BAGIAN YANG DIPERBARUI ===
         $this->assignDefaultStageForOrphans();
     }
 
     private function assignDefaultStageForOrphans()
     {
         $this->line('Menetapkan tahap default untuk residen yang belum memiliki tahap...');
-        $stage1Id = $this->stageMap[1]; // Mengambil ID Tahap I dari peta
+        $stage1Id = $this->stageMap[1];
 
-        // Cari semua residen yang kolom current_stage_id nya masih NULL
         $orphanResidents = Resident::whereNull('current_stage_id')->get();
 
         if ($orphanResidents->isEmpty()) {
@@ -234,10 +232,8 @@ class MigrateOldData extends Command
         }
 
         foreach ($orphanResidents as $resident) {
-            // 1. Update tahap saat ini di tabel residents
             $resident->update(['current_stage_id' => $stage1Id]);
 
-            // 2. Buat catatan riwayat baru di tabel pivot, HANYA JIKA BELUM ADA SAMA SEKALI
             $hasHistory = DB::table('resident_stage')->where('resident_id', $resident->id)->exists();
             if (!$hasHistory) {
                 DB::table('resident_stage')->insert([
