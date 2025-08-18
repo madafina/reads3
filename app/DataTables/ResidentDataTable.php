@@ -26,6 +26,12 @@ class ResidentDataTable extends DataTable
                 $editBtn = '<a href="'.route('admin.residents.edit', $row->id).'" class="btn btn-warning btn-sm ml-1">Edit</a>';
                 return $detailBtn . ' ' . $editBtn;
             })
+            // FILTER KHUSUS UNTUK NAME
+        ->filterColumn('name', function($query, $keyword) {
+            $query->whereHas('user', function($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%");
+            });
+        })
             ->rawColumns(['current_stage', 'action']) // Izinkan HTML di kolom tahap
             ->setRowId('id');
     }

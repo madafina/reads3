@@ -23,11 +23,12 @@ class SubmissionDataTable extends DataTable
             ->addIndexColumn()
             ->addColumn('resident_name', fn($row) => $row->resident->user->name ?? 'N/A')
             ->addColumn('task_category_name', fn($row) => $row->taskCategory->name ?? 'N/A')
-            // ->addColumn('file', function ($row) {
-            //     return '<a href="' . asset('storage/' . $row->file_path) . '" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>';
-            // })
-            
-            // ->rawColumns(['file', 'action'])
+     
+            ->filterColumn('resident_name', function($query, $keyword) {
+                $query->whereHas('resident.user', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
             ->addColumn('action', function($row){
                 // Mengganti tombol file dengan tombol detail
                 return '<a href="'. route('admin.submissions.show', $row->id) .'" class="btn btn-info btn-sm">Lihat Detail</a>';
