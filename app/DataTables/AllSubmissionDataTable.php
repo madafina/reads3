@@ -32,6 +32,11 @@ class AllSubmissionDataTable extends DataTable
                 $status = $row->status;
                 return '<span class="badge badge-'.($badges[$status] ?? 'secondary').'">'.ucfirst($status).'</span>';
             })
+            ->filterColumn('resident_name', function($query, $keyword) {
+                $query->whereHas('resident.user', function($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
             // ->addColumn('file', fn($row) => '<a href="'. asset('storage/' . $row->file_path) .'" target="_blank" class="btn btn-secondary btn-sm">Lihat File</a>')
             ->addColumn('action', function($row){
                 // Mengganti tombol file dengan tombol detail

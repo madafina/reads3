@@ -120,6 +120,9 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
     Route::put('residents/{resident}/update-supervisor', [AdminResidentController::class, 'updateSupervisor'])->name('residents.updateSupervisor');
 
     Route::get('users/export', [AdminUserController::class, 'exportExcel'])->name('users.export');
+
+    // Di dalam grup route admin Anda
+    Route::post('users/{user}/add-stage', [AdminUserController::class, 'addStage'])->name('users.add-stage');
     
 });
 

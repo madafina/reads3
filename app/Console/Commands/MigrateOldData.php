@@ -54,6 +54,7 @@ class MigrateOldData extends Command
     private function buildMasterDataMaps()
     {
         $this->line('Membangun peta data master...');
+        
         $oldCategories = DB::connection('mysql_old')->table('kategori_ilmiah')->get();
         foreach ($oldCategories as $oldCat) {
             $newCat = TaskCategory::where('name', 'like', trim($oldCat->kategori).'%')->first();
