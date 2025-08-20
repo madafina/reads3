@@ -8,7 +8,12 @@
 @endpush
 
 @section('content_header')
-    <h1 class="m-0 text-dark">Manajemen Pengguna</h1>
+    <div class="d-flex justify-content-between">
+        <h1 class="m-0 text-dark">Manajemen Pengguna</h1>
+        <div>
+             <a href="{{ route('admin.users.trashed') }}" class="btn btn-secondary">Tong Sampah</a>
+        </div>
+    </div>
 @stop
 
 @section('content')

@@ -80,14 +80,12 @@ Route::middleware('auth')->group(function () {
         ->name('submissions.edit');
 
     Route::get('/submissions/{submission}', [SubmissionController::class, 'show'])->name('submissions.show');
-
-
 });
 
 Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->group(function () {
 
     Route::get('residents/import', [AdminResidentController::class, 'showImportForm'])->name('residents.import.form');
-    Route::post('residents/import', [AdminResidentController::class, 'import'])->name('residents.import');    
+    Route::post('residents/import', [AdminResidentController::class, 'import'])->name('residents.import');
 
 
     Route::get('/dashboard', AdminDashboard::class)->name('dashboard');
@@ -123,7 +121,11 @@ Route::middleware(['auth', 'role:Admin'])->prefix('admin')->name('admin.')->grou
 
     // Di dalam grup route admin Anda
     Route::post('users/{user}/add-stage', [AdminUserController::class, 'addStage'])->name('users.add-stage');
-    
+
+    // Di dalam grup route admin Anda
+    Route::get('users/trashed', [AdminUserController::class, 'trashed'])->name('users.trashed');
+    Route::put('users/{id}/restore', [AdminUserController::class, 'restore'])->name('users.restore');
+    Route::delete('users/{id}/force-delete', [AdminUserController::class, 'forceDelete'])->name('users.force-delete');
 });
 
 // Buat grup baru untuk route dosen

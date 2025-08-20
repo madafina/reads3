@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\DataTables\TrashedUserDataTable;
 use App\DataTables\UserDataTable;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -108,6 +109,38 @@ class UserController extends Controller
         });
 
         return redirect()->route('admin.users.index')->with('success', 'Profil residen dibuat dan Tahap I berhasil ditambahkan untuk ' . $user->name);
+    }
+
+    /**
+     * Menampilkan daftar pengguna yang sudah di-soft delete.
+     */
+    public function trashed(TrashedUserDataTable $dataTable)
+    {
+        return $dataTable->render('admin.users.trashed');
+    }
+
+    /**
+     * Memulihkan pengguna yang sudah di-soft delete.
+     */
+    public function restore($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        $user->restore();
+
+        return redirect()->route('admin.users.trashed')->with('success', 'Pengguna berhasil dipulihkan.');
+    }
+
+    /**
+     * Menghapus pengguna secara permanen dari database.
+     */
+    public function forceDelete($id)
+    {
+        $user = User::onlyTrashed()->findOrFail($id);
+        // Tambahkan logika untuk menghapus file foto jika ada
+        // if ($user->resident && $user->resident->photo) { ... }
+        $user->forceDelete();
+
+        return redirect()->route('admin.users.trashed')->with('success', 'Pengguna berhasil dihapus secara permanen.');
     }
     
 }
