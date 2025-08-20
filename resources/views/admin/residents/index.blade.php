@@ -7,7 +7,7 @@
         <h1 class="m-0 text-dark">Manajemen Residen</h1>
         <div>
             <a href="{{ route('admin.residents.import.form') }}" class="btn btn-success">Impor Residen</a>
-            <a href="#" class="btn btn-primary">Tambah Residen</a>
+            {{-- <a href="#" class="btn btn-primary">Tambah Residen</a> --}}
         </div>
     </div>
 @stop
