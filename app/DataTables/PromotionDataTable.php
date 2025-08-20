@@ -24,25 +24,30 @@ class PromotionDataTable extends DataTable
             ->addIndexColumn()
             ->addColumn('name', fn($row) => $row->user->name ?? 'N/A')
             ->addColumn('current_stage', fn($row) => $row->currentStage->name ?? 'N/A')
-            ->addColumn('completion_status', function($row) {
+            ->addColumn('completion_status', function ($row) {
                 if (!$row->currentStage) return '<span class="badge badge-secondary">N/A</span>';
                 $isComplete = $this->progressService->isStageComplete($row);
                 return $isComplete ? '<span class="badge badge-success">Lengkap</span>' : '<span class="badge badge-warning">Belum Lengkap</span>';
             })
-             ->addColumn('show', function($row){
+            ->addColumn('show', function ($row) {
                 // Mengganti tombol file dengan tombol detail
-                return '<a href="'. route('admin.residents.show', $row->user->resident->id) .'" class="btn btn-info btn-sm">Lihat</a>';
+                return '<a href="' . route('admin.residents.show', $row->user->resident->id) . '" class="btn btn-info btn-sm">Lihat</a>';
             })
-            ->addColumn('action', function($row) {
+            ->filterColumn('name', function ($query, $keyword) {
+                $query->whereHas('user', function ($q) use ($keyword) {
+                    $q->where('name', 'like', "%{$keyword}%");
+                });
+            })
+            ->addColumn('action', function ($row) {
                 if (!$row->currentStage) return 'Tidak ada aksi';
                 $isComplete = $this->progressService->isStageComplete($row);
                 if ($isComplete && $row->currentStage->order < 4) {
                     $nextStageName = \App\Models\Stage::where('order', '>', $row->currentStage->order)->orderBy('order')->first()->name ?? '';
                     $form = '
-                        <form action="'.route('admin.promotions.promote', $row->id).'" method="POST">
-                            '.csrf_field().'
-                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(\'Naikkan '. $row->user->name .' ke '.$nextStageName.'?\')">
-                                Naikkan ke '.$nextStageName.'
+                        <form action="' . route('admin.promotions.promote', $row->id) . '" method="POST">
+                            ' . csrf_field() . '
+                            <button type="submit" class="btn btn-primary btn-sm" onclick="return confirm(\'Naikkan ' . $row->user->name . ' ke ' . $nextStageName . '?\')">
+                                Naikkan ke ' . $nextStageName . '
                             </button>
                         </form>
                     ';
@@ -86,10 +91,10 @@ class PromotionDataTable extends DataTable
     public function html()
     {
         return $this->builder()
-                    ->setTableId('promotion-table')
-                    ->columns($this->getColumns())
-                    ->minifiedAjax()
-                    ->orderBy(1);
+            ->setTableId('promotion-table')
+            ->columns($this->getColumns())
+            ->minifiedAjax()
+            ->orderBy(1);
     }
 
     protected function getColumns()

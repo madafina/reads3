@@ -38,7 +38,10 @@ class ResidentDataTable extends DataTable
 
     public function query(Resident $model): QueryBuilder
     {
-        $query = $model->newQuery()->with(['user', 'currentStage']);
+        $query = $model->newQuery()->with(['user', 'currentStage'])
+            ->whereHas('user', function ($q) {
+                $q->whereNull('deleted_at');
+            });
 
         // === BAGIAN YANG DIPERBARUI ===
         if ($stageId = $this->request()->get('stage_id')) {
